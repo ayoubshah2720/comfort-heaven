@@ -69,4 +69,5 @@ router.get('/quotes/:quoteId', authenticate, getQuoteById);
 router.post('/quotes/:quoteId/accept', authenticate, acceptQuote);
 router.post('/quotes/:quoteId/reject', authenticate, rejectQuote);
 
+
 module.exports = router;
