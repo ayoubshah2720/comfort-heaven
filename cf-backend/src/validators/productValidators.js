@@ -1,4 +1,4 @@
-const { body } = require('express-validator');
+const { body, query } = require('express-validator');
 
 const productCreateValidation = [
   body('name').trim().notEmpty().withMessage('Name is required'),
@@ -32,4 +32,13 @@ const productImageValidation = [
   body('isCover').optional().isBoolean()
 ];
 
-module.exports = { productCreateValidation, productUpdateValidation, productImageValidation };
+const productListQueryValidation = [
+  query('page').optional().isInt({ min: 1 }).withMessage('page must be an integer >= 1'),
+  query('pageSize').optional().isInt({ min: 1, max: 100 }).withMessage('pageSize must be 1-100'),
+  query('sortBy').optional().isIn(['createdAt', 'priceCents', 'name']).withMessage('sortBy must be createdAt, priceCents, or name'),
+  query('sortOrder').optional().isIn(['asc', 'desc']).withMessage('sortOrder must be asc or desc'),
+  query('minPrice').optional().isInt({ min: 0 }).withMessage('minPrice must be a non-negative integer'),
+  query('maxPrice').optional().isInt({ min: 0 }).withMessage('maxPrice must be a non-negative integer'),
+];
+
+module.exports = { productCreateValidation, productUpdateValidation, productImageValidation, productListQueryValidation };

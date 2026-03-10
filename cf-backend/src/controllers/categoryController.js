@@ -5,7 +5,10 @@ async function listCategories(req, res, next) {
   try {
     const categories = await prisma.category.findMany({
       where: { isActive: true },
-      include: { subcategories: { where: { isActive: true } } },
+      include: {
+        subcategories: { where: { isActive: true } },
+        _count: { select: { products: true } }
+      },
       orderBy: { createdAt: 'desc' }
     });
 
@@ -25,7 +28,10 @@ async function getCategoryBySlug(req, res, next) {
     const { slug } = req.params;
     const category = await prisma.category.findUnique({
       where: { slug },
-      include: { subcategories: { where: { isActive: true } } }
+      include: {
+        subcategories: { where: { isActive: true } },
+        _count: { select: { products: true } }
+      }
     });
 
     if (!category || !category.isActive) {

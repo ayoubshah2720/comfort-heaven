@@ -72,8 +72,14 @@ function buildProductWhere(query, isAdmin) {
     subCategorySlug,
     brandId,
     vendorId,
-    collectionId
+    collectionId,
+    minPrice,
+    maxPrice
   } = query;
+
+  const priceCentsFilter = {};
+  if (minPrice !== undefined) priceCentsFilter.gte = Number(minPrice);
+  if (maxPrice !== undefined) priceCentsFilter.lte = Number(maxPrice);
 
   return {
     ...(isAdmin === false ? { isActive: true } : {}),
@@ -85,6 +91,7 @@ function buildProductWhere(query, isAdmin) {
     ...(collectionId ? { collectionId } : {}),
     ...(categorySlug ? { category: { slug: categorySlug } } : {}),
     ...(subCategorySlug ? { subCategory: { slug: subCategorySlug } } : {}),
+    ...(Object.keys(priceCentsFilter).length > 0 ? { priceCents: priceCentsFilter } : {}),
     ...(q
       ? {
           OR: [
@@ -98,16 +105,31 @@ function buildProductWhere(query, isAdmin) {
 
 async function listProducts(req, res, next) {
   try {
-    const products = await prisma.product.findMany({
-      where: buildProductWhere(req.query, false),
-      include: withProductRelations(),
-      orderBy: { createdAt: 'desc' }
-    });
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const pageSize = Math.min(100, Math.max(1, parseInt(req.query.pageSize) || 12));
+    const sortBy = ['createdAt', 'priceCents', 'name'].includes(req.query.sortBy) ? req.query.sortBy : 'createdAt';
+    const sortOrder = req.query.sortOrder === 'asc' ? 'asc' : 'desc';
+    const skip = (page - 1) * pageSize;
+    const where = buildProductWhere(req.query, false);
+
+    const [products, total] = await Promise.all([
+      prisma.product.findMany({
+        where,
+        include: withProductRelations(),
+        orderBy: { [sortBy]: sortOrder },
+        skip,
+        take: pageSize
+      }),
+      prisma.product.count({ where })
+    ]);
 
     return response(res, {
       status: 'success',
       message: 'Products',
-      data: products,
+      data: {
+        products,
+        pagination: { page, pageSize, total, totalPages: Math.ceil(total / pageSize) }
+      },
       status_code: 200
     });
   } catch (err) {
@@ -117,16 +139,31 @@ async function listProducts(req, res, next) {
 
 async function listAdminProducts(req, res, next) {
   try {
-    const products = await prisma.product.findMany({
-      where: buildProductWhere(req.query, true),
-      include: withProductRelations(),
-      orderBy: { createdAt: 'desc' }
-    });
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const pageSize = Math.min(100, Math.max(1, parseInt(req.query.pageSize) || 12));
+    const sortBy = ['createdAt', 'priceCents', 'name'].includes(req.query.sortBy) ? req.query.sortBy : 'createdAt';
+    const sortOrder = req.query.sortOrder === 'asc' ? 'asc' : 'desc';
+    const skip = (page - 1) * pageSize;
+    const where = buildProductWhere(req.query, true);
+
+    const [products, total] = await Promise.all([
+      prisma.product.findMany({
+        where,
+        include: withProductRelations(),
+        orderBy: { [sortBy]: sortOrder },
+        skip,
+        take: pageSize
+      }),
+      prisma.product.count({ where })
+    ]);
 
     return response(res, {
       status: 'success',
       message: 'Products',
-      data: products,
+      data: {
+        products,
+        pagination: { page, pageSize, total, totalPages: Math.ceil(total / pageSize) }
+      },
       status_code: 200
     });
   } catch (err) {

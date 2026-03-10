@@ -84,11 +84,16 @@ async function seedCategories() {
     const slug = slugify(c.name);
     const created = await prisma.category.upsert({
       where: { slug },
-      update: { name: c.name, description: c.description || null },
+      update: {
+        name: c.name,
+        description: c.description || null,
+        imageUrl: c.imageUrl || null
+      },
       create: {
         name: c.name,
         slug,
-        description: c.description || null
+        description: c.description || null,
+        imageUrl: c.imageUrl || null
       }
     });
     refs.categories[c.name] = created.id;

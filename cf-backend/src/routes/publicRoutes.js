@@ -28,6 +28,7 @@ const {
   createReview
 } = require('../controllers/reviewController');
 const { listTestimonials } = require('../controllers/testimonialController');
+const { productListQueryValidation } = require('../validators/productValidators');
 const { cartItemValidation, cartItemUpdateValidation } = require('../validators/cartValidators');
 const { quoteCreateValidation } = require('../validators/quoteValidators');
 const { reviewCreateValidation } = require('../validators/reviewValidators');
@@ -43,7 +44,7 @@ router.get('/categories/:slug', getCategoryBySlug);
 router.get('/collections', listCollections);
 router.get('/brands', listBrands);
 router.get('/vendors', listVendors);
-router.get('/products', listProducts);
+router.get('/products', productListQueryValidation, validate, listProducts);
 router.get('/invoices', authenticate, listInvoices);
 router.get('/invoices/:invoiceId', authenticate, getInvoiceById);
 router.get('/search', search);
