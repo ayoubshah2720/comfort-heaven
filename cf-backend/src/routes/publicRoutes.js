@@ -24,6 +24,11 @@ const {
   rejectQuote
 } = require('../controllers/quoteController');
 const {
+  getWishlist,
+  toggleWishlistItem,
+  removeWishlistItem
+} = require('../controllers/wishlistController');
+const {
   listAddresses,
   createAddress,
   updateAddress,
@@ -40,6 +45,7 @@ const { cartItemValidation, cartItemUpdateValidation } = require('../validators/
 const { quoteCreateValidation } = require('../validators/quoteValidators');
 const { reviewCreateValidation } = require('../validators/reviewValidators');
 const { checkoutValidation } = require('../validators/orderValidators');
+const { wishlistItemValidation } = require('../validators/wishlistValidators');
 const { addressCreateValidation, addressUpdateValidation } = require('../validators/addressValidators');
 const { authenticate } = require('../middleware/auth');
 const validate = require('../validators/validate');
@@ -71,6 +77,10 @@ router.get('/testimonials', listTestimonials);
 router.get('/posts', listPosts);
 router.get('/posts/:slug', getPostBySlug);
 router.get('/tags', listTags);
+
+router.get('/wishlist', authenticate, getWishlist);
+router.post('/wishlist/toggle', authenticate, wishlistItemValidation, validate, toggleWishlistItem);
+router.delete('/wishlist/items/:itemId', authenticate, removeWishlistItem);
 
 router.get('/addresses', authenticate, listAddresses);
 router.post('/addresses', authenticate, addressCreateValidation, validate, createAddress);
