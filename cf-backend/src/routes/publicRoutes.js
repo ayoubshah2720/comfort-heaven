@@ -24,6 +24,13 @@ const {
   rejectQuote
 } = require('../controllers/quoteController');
 const {
+  listAddresses,
+  createAddress,
+  updateAddress,
+  deleteAddress,
+  setDefaultAddress
+} = require('../controllers/addressController');
+const {
   listReviews,
   createReview
 } = require('../controllers/reviewController');
@@ -33,6 +40,7 @@ const { cartItemValidation, cartItemUpdateValidation } = require('../validators/
 const { quoteCreateValidation } = require('../validators/quoteValidators');
 const { reviewCreateValidation } = require('../validators/reviewValidators');
 const { checkoutValidation } = require('../validators/orderValidators');
+const { addressCreateValidation, addressUpdateValidation } = require('../validators/addressValidators');
 const { authenticate } = require('../middleware/auth');
 const validate = require('../validators/validate');
 
@@ -63,6 +71,12 @@ router.get('/testimonials', listTestimonials);
 router.get('/posts', listPosts);
 router.get('/posts/:slug', getPostBySlug);
 router.get('/tags', listTags);
+
+router.get('/addresses', authenticate, listAddresses);
+router.post('/addresses', authenticate, addressCreateValidation, validate, createAddress);
+router.put('/addresses/:addressId', authenticate, addressUpdateValidation, validate, updateAddress);
+router.delete('/addresses/:addressId', authenticate, deleteAddress);
+router.post('/addresses/:addressId/default', authenticate, setDefaultAddress);
 
 router.get('/quotes', authenticate, listQuotes);
 router.post('/quotes', authenticate, quoteCreateValidation, validate, createQuote);

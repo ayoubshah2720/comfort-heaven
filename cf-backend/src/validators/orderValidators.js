@@ -27,7 +27,18 @@ const checkoutValidation = [
     .trim()
     .notEmpty()
     .isLength({ min: 3, max: 3 })
-    .withMessage('currency must be a 3-letter code')
+    .withMessage('currency must be a 3-letter code'),
+  body('addressId').optional().isUUID().withMessage('addressId must be a valid UUID'),
+  body('shippingAddress').optional().isObject().withMessage('shippingAddress must be an object'),
+  body('shippingAddress.label').optional().trim().notEmpty(),
+  body('shippingAddress.address1').optional().trim().notEmpty(),
+  body('shippingAddress.city').optional().trim().notEmpty(),
+  body('shippingAddress.state').optional().trim().notEmpty(),
+  body('shippingAddress.zipCode').optional().trim().notEmpty(),
+  body('shippingAddress.phone').optional().trim().notEmpty(),
+  body('shippingAddress.company').optional().trim(),
+  body('shippingAddress.address2').optional().trim(),
+  body('shippingAddress.country').optional().trim()
 ];
 
 module.exports = { orderAdminUpdateValidation, checkoutValidation };
