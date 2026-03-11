@@ -113,7 +113,7 @@ async function me(req, res, next) {
   try {
     const user = await prisma.user.findUnique({
       where: { id: req.user.id },
-      select: { id: true, name: true, email: true, role: true, isActive: true, createdAt: true }
+      select: { id: true, name: true, email: true, role: true, username: true, phone: true, gender: true, isActive: true, createdAt: true }
     });
 
     if (!user) {
@@ -130,6 +130,51 @@ async function me(req, res, next) {
       message: 'Profile',
       data: user,
       status_code: 200
+    });
+  } catch (err) {
+    return next(err);
+  }
+}
+
+async function updateMe(req, res, next) {
+  try {
+    const { name, username, phone, gender } = req.body;
+
+    if (username) {
+      const existing = await prisma.user.findFirst({
+        where: { username, NOT: { id: req.user.id } },
+      });
+      if (existing) {
+        return response(res, {
+          status: 'error',
+          message: 'Username is already taken',
+          data: null,
+          status_code: 409,
+        });
+      }
+    }
+
+    const data = {};
+    if (name !== undefined) data.name = name;
+    if (username !== undefined) data.username = username;
+    if (phone !== undefined) data.phone = phone;
+    if (gender !== undefined) data.gender = gender;
+
+    const user = await prisma.user.update({
+      where: { id: req.user.id },
+      data,
+      select: {
+        id: true, name: true, email: true, role: true,
+        username: true, phone: true, gender: true,
+        isActive: true, createdAt: true,
+      },
+    });
+
+    return response(res, {
+      status: 'success',
+      message: 'Profile updated',
+      data: user,
+      status_code: 200,
     });
   } catch (err) {
     return next(err);
@@ -220,4 +265,4 @@ async function logout(req, res, next) {
   }
 }
 
-module.exports = { register, login, me, refresh, logout };
+module.exports = { register, login, me, updateMe, refresh, logout };
