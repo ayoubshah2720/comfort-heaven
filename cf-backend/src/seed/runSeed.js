@@ -87,13 +87,17 @@ async function seedCategories() {
       update: {
         name: c.name,
         description: c.description || null,
-        imageUrl: c.imageUrl || null
+        imageUrl: c.imageUrl || null,
+        showInHeader: c.showInHeader || false,
+        headerOrder: c.headerOrder ?? null
       },
       create: {
         name: c.name,
         slug,
         description: c.description || null,
-        imageUrl: c.imageUrl || null
+        imageUrl: c.imageUrl || null,
+        showInHeader: c.showInHeader || false,
+        headerOrder: c.headerOrder ?? null
       }
     });
     refs.categories[c.name] = created.id;

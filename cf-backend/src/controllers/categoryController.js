@@ -54,4 +54,22 @@ async function getCategoryBySlug(req, res, next) {
   }
 }
 
-module.exports = { listCategories, getCategoryBySlug };
+async function listHeaderCategories(req, res, next) {
+  try {
+    const categories = await prisma.category.findMany({
+      where: { isActive: true, showInHeader: true },
+      select: { id: true, name: true, slug: true },
+      orderBy: { headerOrder: 'asc' }
+    });
+    return response(res, {
+      status: 'success',
+      message: 'Header categories',
+      data: categories,
+      status_code: 200
+    });
+  } catch (err) {
+    return next(err);
+  }
+}
+
+module.exports = { listCategories, getCategoryBySlug, listHeaderCategories };

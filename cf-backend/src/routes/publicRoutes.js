@@ -1,5 +1,5 @@
 const express = require('express');
-const { listCategories, getCategoryBySlug } = require('../controllers/categoryController');
+const { listCategories, getCategoryBySlug, listHeaderCategories } = require('../controllers/categoryController');
 const {
   listProducts,
   getProductById,
@@ -53,6 +53,7 @@ const validate = require('../validators/validate');
 const router = express.Router();
 
 router.get('/categories', listCategories);
+router.get('/categories/header', listHeaderCategories);
 router.get('/categories/:slug', getCategoryBySlug);
 
 router.get('/collections', listCollections);

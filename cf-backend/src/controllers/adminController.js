@@ -4,7 +4,7 @@ const slugify = require('../utils/slugify');
 
 async function createCategory(req, res, next) {
   try {
-    const { name, description, imageUrl, isActive } = req.body;
+    const { name, description, imageUrl, isActive, showInHeader, headerOrder } = req.body;
     const slug = slugify(name);
 
     const existing = await prisma.category.findUnique({ where: { slug } });
@@ -18,7 +18,7 @@ async function createCategory(req, res, next) {
     }
 
     const category = await prisma.category.create({
-      data: { name, slug, description, imageUrl, isActive }
+      data: { name, slug, description, imageUrl, isActive, showInHeader, headerOrder }
     });
 
     return response(res, {
@@ -35,9 +35,9 @@ async function createCategory(req, res, next) {
 async function updateCategory(req, res, next) {
   try {
     const { id } = req.params;
-    const { name, description, imageUrl, isActive } = req.body;
+    const { name, description, imageUrl, isActive, showInHeader, headerOrder } = req.body;
 
-    const data = { description, imageUrl, isActive };
+    const data = { description, imageUrl, isActive, showInHeader, headerOrder };
     if (name) {
       data.name = name;
       data.slug = slugify(name);

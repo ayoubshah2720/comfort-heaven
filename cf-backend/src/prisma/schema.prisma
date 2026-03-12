@@ -84,6 +84,8 @@ model Category {
   description   String?
   imageUrl      String?
   isActive      Boolean       @default(true)
+  showInHeader  Boolean       @default(false)
+  headerOrder   Int?
   subcategories SubCategory[]
   posts         Post[]
   products      Product[]
