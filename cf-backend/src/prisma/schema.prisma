@@ -132,6 +132,7 @@ model Product {
   reviews       Review[]
   wishlistItems WishlistItem[]
   isActive      Boolean        @default(true)
+  isNewArrival  Boolean        @default(false)
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
 }

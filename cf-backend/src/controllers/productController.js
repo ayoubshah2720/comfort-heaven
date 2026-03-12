@@ -103,6 +103,24 @@ function buildProductWhere(query, isAdmin) {
   };
 }
 
+async function listNewArrivals(req, res, next) {
+  try {
+    const products = await prisma.product.findMany({
+      where: { isActive: true, isNewArrival: true },
+      include: withProductRelations(),
+      orderBy: { createdAt: 'desc' }
+    });
+    return response(res, {
+      status: 'success',
+      message: 'New arrivals',
+      data: products,
+      status_code: 200
+    });
+  } catch (err) {
+    return next(err);
+  }
+}
+
 async function listProducts(req, res, next) {
   try {
     const page = Math.max(1, parseInt(req.query.page) || 1);
@@ -211,7 +229,8 @@ async function createProduct(req, res, next) {
       description,
       priceCents,
       imageUrl,
-      isActive
+      isActive,
+      isNewArrival
     } = req.body;
 
     const validationError = await validateRelatedEntities({
@@ -252,7 +271,8 @@ async function createProduct(req, res, next) {
         collectionId,
         description,
         imageUrl,
-        isActive
+        isActive,
+        isNewArrival
       }
     });
 
@@ -280,7 +300,8 @@ async function updateProduct(req, res, next) {
       description,
       priceCents,
       imageUrl,
-      isActive
+      isActive,
+      isNewArrival
     } = req.body;
 
     const currentProduct = await prisma.product.findUnique({
@@ -341,7 +362,8 @@ async function updateProduct(req, res, next) {
       collectionId,
       description,
       imageUrl,
-      isActive
+      isActive,
+      isNewArrival
     };
 
     if (name) {
@@ -493,6 +515,7 @@ async function search(req, res, next) {
 
 module.exports = {
   listProducts,
+  listNewArrivals,
   listAdminProducts,
   getProductById,
   createProduct,

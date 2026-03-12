@@ -2,6 +2,7 @@ const express = require('express');
 const { listCategories, getCategoryBySlug, listHeaderCategories } = require('../controllers/categoryController');
 const {
   listProducts,
+  listNewArrivals,
   getProductById,
   search
 } = require('../controllers/productController');
@@ -64,6 +65,7 @@ router.get('/invoices', authenticate, listInvoices);
 router.get('/invoices/:invoiceId', authenticate, getInvoiceById);
 router.get('/search', search);
 router.get('/products/search', search);
+router.get('/products/new-arrivals', listNewArrivals);
 router.get('/products/:productId', getProductById);
 router.get('/cart', authenticate, getCart);
 router.post('/cart/items', authenticate, cartItemValidation, validate, addCartItem);

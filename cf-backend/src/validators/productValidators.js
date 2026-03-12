@@ -10,7 +10,8 @@ const productCreateValidation = [
   body('description').optional().isString(),
   body('imageUrl').optional().isString(),
   body('priceCents').optional().isInt({ min: 0 }).withMessage('priceCents must be a non-negative integer'),
-  body('isActive').optional().isBoolean()
+  body('isActive').optional().isBoolean(),
+  body('isNewArrival').optional().isBoolean()
 ];
 
 const productUpdateValidation = [
@@ -23,7 +24,8 @@ const productUpdateValidation = [
   body('description').optional().isString(),
   body('imageUrl').optional().isString(),
   body('priceCents').optional().isInt({ min: 0 }).withMessage('priceCents must be a non-negative integer'),
-  body('isActive').optional().isBoolean()
+  body('isActive').optional().isBoolean(),
+  body('isNewArrival').optional().isBoolean()
 ];
 
 const productImageValidation = [

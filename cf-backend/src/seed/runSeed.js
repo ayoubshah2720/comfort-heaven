@@ -194,7 +194,8 @@ async function seedProducts() {
         subCategoryId,
         brandId,
         vendorId,
-        collectionId
+        collectionId,
+        isNewArrival: p.isNewArrival || false
       },
       create: {
         name: p.name,
@@ -205,7 +206,8 @@ async function seedProducts() {
         subCategoryId,
         brandId,
         vendorId,
-        collectionId
+        collectionId,
+        isNewArrival: p.isNewArrival || false
       }
     });
     refs.products[p.name] = created.id;
