@@ -400,3 +400,9 @@ model WishlistItem {
   @@unique([userId, productId])
   @@index([userId])
 }
+
+model NewsletterSubscriber {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
+}

@@ -41,6 +41,7 @@ const {
   createReview
 } = require('../controllers/reviewController');
 const { listTestimonials } = require('../controllers/testimonialController');
+const { subscribe } = require('../controllers/newsletterController');
 const { productListQueryValidation } = require('../validators/productValidators');
 const { cartItemValidation, cartItemUpdateValidation } = require('../validators/cartValidators');
 const { quoteCreateValidation } = require('../validators/quoteValidators');
@@ -48,6 +49,7 @@ const { reviewCreateValidation } = require('../validators/reviewValidators');
 const { checkoutValidation } = require('../validators/orderValidators');
 const { wishlistItemValidation } = require('../validators/wishlistValidators');
 const { addressCreateValidation, addressUpdateValidation } = require('../validators/addressValidators');
+const { newsletterSubscribeValidation } = require('../validators/newsletterValidators');
 const { authenticate } = require('../middleware/auth');
 const validate = require('../validators/validate');
 
@@ -97,5 +99,6 @@ router.get('/quotes/:quoteId', authenticate, getQuoteById);
 router.post('/quotes/:quoteId/accept', authenticate, acceptQuote);
 router.post('/quotes/:quoteId/reject', authenticate, rejectQuote);
 
+router.post('/newsletter/subscribe', newsletterSubscribeValidation, validate, subscribe);
 
 module.exports = router;
