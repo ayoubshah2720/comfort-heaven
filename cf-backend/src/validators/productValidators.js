@@ -11,7 +11,19 @@ const productCreateValidation = [
   body('imageUrl').optional().isString(),
   body('priceCents').optional().isInt({ min: 0 }).withMessage('priceCents must be a non-negative integer'),
   body('isActive').optional().isBoolean(),
-  body('isNewArrival').optional().isBoolean()
+  body('isNewArrival').optional().isBoolean(),
+  body('comparePriceCents').optional().isInt({ min: 0 }),
+  body('longDescription').optional().isString(),
+  body('productDetails').optional().isArray(),
+  body('productDetails.*').optional().isString(),
+  body('dimensions').optional().isArray(),
+  body('dimensions.*').optional().isString(),
+  body('careAndCleaning').optional().isString(),
+  body('specifications').optional().isArray(),
+  body('specifications.*.label').optional().isString(),
+  body('specifications.*.value').optional().isString(),
+  body('tags').optional().isArray(),
+  body('tags.*').optional().isString()
 ];
 
 const productUpdateValidation = [
@@ -25,7 +37,19 @@ const productUpdateValidation = [
   body('imageUrl').optional().isString(),
   body('priceCents').optional().isInt({ min: 0 }).withMessage('priceCents must be a non-negative integer'),
   body('isActive').optional().isBoolean(),
-  body('isNewArrival').optional().isBoolean()
+  body('isNewArrival').optional().isBoolean(),
+  body('comparePriceCents').optional().isInt({ min: 0 }),
+  body('longDescription').optional().isString(),
+  body('productDetails').optional().isArray(),
+  body('productDetails.*').optional().isString(),
+  body('dimensions').optional().isArray(),
+  body('dimensions.*').optional().isString(),
+  body('careAndCleaning').optional().isString(),
+  body('specifications').optional().isArray(),
+  body('specifications.*.label').optional().isString(),
+  body('specifications.*.value').optional().isString(),
+  body('tags').optional().isArray(),
+  body('tags.*').optional().isString()
 ];
 
 const productImageValidation = [

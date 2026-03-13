@@ -1,5 +1,128 @@
 // ~150 products: name, description, priceCents, category, subcategory, brand?, collection?, vendor?
 // category/subcategory match categories.js and subcategories.js keys
+
+const categoryDefaults = {
+  'Living Room': {
+    longDescription: 'Crafted for the modern living room, this piece combines comfort with contemporary design. Premium materials ensure lasting durability while the elegant silhouette complements any decor style.',
+    productDetails: [
+      'Premium upholstery fabric with stain-resistant treatment',
+      'High-density foam cushioning for lasting comfort',
+      'Solid hardwood frame with reinforced joints',
+      'Non-marking floor protectors included',
+      'Easy spot-clean maintenance',
+    ],
+    dimensions: ['Refer to product specifications for exact sizing', 'Weight capacity: 300 lbs', 'Assembly required for select items'],
+    careAndCleaning: 'Vacuum regularly with upholstery attachment. Spot-clean spills immediately with a damp cloth and mild soap. Avoid direct sunlight to prevent fading. Rotate cushions periodically for even wear.',
+    specifications: [
+      { label: 'Material', value: 'Hardwood Frame & Upholstery Fabric' },
+      { label: 'Style', value: 'Contemporary' },
+      { label: 'Assembly', value: 'Legs attach with included hardware' },
+      { label: 'Warranty', value: '1 Year Manufacturer Warranty' },
+      { label: 'Origin', value: 'Pakistan' },
+    ],
+  },
+  'Bedroom': {
+    longDescription: 'Transform your bedroom into a sanctuary of rest. This piece features quality construction and thoughtful design details that bring both style and function to your personal space.',
+    productDetails: [
+      'Solid wood or engineered wood construction',
+      'Smooth-gliding drawers with metal runners',
+      'Scratch-resistant surface finish',
+      'Felt-lined top drawers where applicable',
+      'Floor levelers for uneven surfaces',
+    ],
+    dimensions: ['Refer to product specifications for exact sizing', 'Standard bedroom furniture dimensions', 'Assembly required'],
+    careAndCleaning: 'Dust regularly with a soft cloth. Wipe with a slightly damp cloth for deeper cleaning. Use coasters to prevent water rings. Apply furniture polish occasionally to maintain finish.',
+    specifications: [
+      { label: 'Material', value: 'Solid Wood / Engineered Wood' },
+      { label: 'Finish', value: 'Lacquered' },
+      { label: 'Assembly', value: 'Required (tools included)' },
+      { label: 'Warranty', value: '2 Years Manufacturer Warranty' },
+      { label: 'Origin', value: 'Pakistan' },
+    ],
+  },
+  'Kitchen & Dining': {
+    longDescription: 'Designed for gathering and entertaining, this dining piece brings warmth and character to your kitchen or dining area. Built to withstand daily use while maintaining its elegant appearance.',
+    productDetails: [
+      'Durable construction for daily dining use',
+      'Stain-resistant and easy-to-clean surface',
+      'Sturdy legs with anti-wobble design',
+      'Compatible with standard dining setups',
+      'Seats comfortably for everyday meals and entertaining',
+    ],
+    dimensions: ['Refer to product specifications for exact sizing', 'Standard dining height: 30 inches', 'Assembly required for most items'],
+    careAndCleaning: 'Wipe with a damp cloth after meals. Use placemats and coasters to protect the surface. Avoid placing hot items directly on the surface. Clean spills immediately to prevent staining.',
+    specifications: [
+      { label: 'Material', value: 'Solid Wood / Metal' },
+      { label: 'Style', value: 'Transitional' },
+      { label: 'Assembly', value: 'Required' },
+      { label: 'Warranty', value: '1 Year Manufacturer Warranty' },
+      { label: 'Origin', value: 'Pakistan' },
+    ],
+  },
+  'Home Office': {
+    longDescription: 'Elevate your workspace with furniture designed for productivity and comfort. Ergonomic features and smart storage solutions help you stay organized and focused throughout the workday.',
+    productDetails: [
+      'Ergonomic design for extended comfort',
+      'Cable management features where applicable',
+      'Adjustable components for personalized fit',
+      'Durable construction for daily professional use',
+      'Modern design that complements any office decor',
+    ],
+    dimensions: ['Refer to product specifications for exact sizing', 'Standard desk height: 30 inches', 'Weight capacity varies by product'],
+    careAndCleaning: 'Wipe surfaces with a damp cloth. Use a monitor-safe cleaner for screens. Lubricate moving parts annually. Keep away from direct sunlight to prevent material degradation.',
+    specifications: [
+      { label: 'Material', value: 'Steel Frame & Premium Finish' },
+      { label: 'Style', value: 'Modern' },
+      { label: 'Assembly', value: 'Required (tools included)' },
+      { label: 'Warranty', value: '2 Years Manufacturer Warranty' },
+      { label: 'Origin', value: 'Pakistan' },
+    ],
+  },
+};
+
+const fallbackDefaults = {
+  longDescription: 'A beautifully crafted piece that adds both style and function to your space. Made with quality materials and attention to detail for long-lasting enjoyment.',
+  productDetails: [
+    'Quality materials and construction',
+    'Thoughtful design details',
+    'Easy to maintain and clean',
+    'Versatile styling options',
+  ],
+  dimensions: ['Refer to product specifications for exact sizing'],
+  careAndCleaning: 'Wipe clean with a damp cloth. Avoid harsh chemicals. Follow material-specific care guidelines.',
+  specifications: [
+    { label: 'Material', value: 'See product description' },
+    { label: 'Assembly', value: 'May be required' },
+    { label: 'Warranty', value: '1 Year Manufacturer Warranty' },
+    { label: 'Origin', value: 'Pakistan' },
+  ],
+};
+
+function getDefaults(category) {
+  return categoryDefaults[category] || fallbackDefaults;
+}
+
+function buildTags(category, subcategory, extras) {
+  const tags = [category];
+  if (subcategory) tags.push(subcategory);
+  if (extras) tags.push(...extras);
+  return tags;
+}
+
+function addDetailFields(product) {
+  const defaults = getDefaults(product.category);
+  return {
+    ...product,
+    comparePriceCents: Math.round(product.priceCents * 1.25),
+    longDescription: product.longDescription || defaults.longDescription,
+    productDetails: product.productDetails || defaults.productDetails,
+    dimensions: product.dimensions || defaults.dimensions,
+    careAndCleaning: product.careAndCleaning || defaults.careAndCleaning,
+    specifications: product.specifications || defaults.specifications,
+    tags: product.tags || buildTags(product.category, product.subcategory),
+  };
+}
+
 module.exports = [
   // Living Room - Sofas & Sectionals
   { name: 'Eden 3-Seater Sofa', description: 'Plush velvet upholstery with deep seating and tapered wooden legs. Perfect for modern living rooms.', priceCents: 129900, category: 'Living Room', subcategory: 'Sofas & Sectionals', brand: 'Comfort Haven', collection: 'Modern Minimalist', vendor: 'Pacific Furniture Supply' },
@@ -197,4 +320,4 @@ module.exports = [
   { name: 'Basket Set Woven', description: 'Set of three woven storage baskets. Living room organization.', priceCents: 7900, category: 'Decor & Accessories', subcategory: 'Decorative Objects', brand: 'Artisan Collective', collection: 'Bohemian' },
   { name: 'Table Runner Linen', description: 'Natural linen table runner. Dining table styling.', priceCents: 2900, category: 'Decor & Accessories', subcategory: 'Decorative Objects', brand: 'Nordic Living' },
   { name: 'Napkin Ring Set', description: 'Set of six brass napkin rings. Dinner party essentials.', priceCents: 3900, category: 'Decor & Accessories', subcategory: 'Decorative Objects', brand: 'Modern Edge' }
-];
+].map(addDetailFields);

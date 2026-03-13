@@ -184,6 +184,15 @@ async function seedProducts() {
     const brandId = p.brand ? refs.brands[p.brand] : null;
     const collectionId = p.collection ? refs.collections[p.collection] : null;
     const vendorId = p.vendor ? refs.vendors[p.vendor] : (i % 3 === 0 && vendorNames.length ? refs.vendors[vendorNames[i % vendorNames.length]] : null);
+    const detailFields = {
+      comparePriceCents: p.comparePriceCents || null,
+      longDescription: p.longDescription || null,
+      productDetails: p.productDetails || [],
+      dimensions: p.dimensions || [],
+      careAndCleaning: p.careAndCleaning || null,
+      specifications: p.specifications || undefined,
+      tags: p.tags || [],
+    };
     const created = await prisma.product.upsert({
       where: { slug },
       update: {
@@ -195,7 +204,8 @@ async function seedProducts() {
         brandId,
         vendorId,
         collectionId,
-        isNewArrival: p.isNewArrival || false
+        isNewArrival: p.isNewArrival || false,
+        ...detailFields
       },
       create: {
         name: p.name,
@@ -207,7 +217,8 @@ async function seedProducts() {
         brandId,
         vendorId,
         collectionId,
-        isNewArrival: p.isNewArrival || false
+        isNewArrival: p.isNewArrival || false,
+        ...detailFields
       }
     });
     refs.products[p.name] = created.id;

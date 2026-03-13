@@ -206,10 +206,22 @@ async function getProductById(req, res, next) {
       });
     }
 
+    const reviewAgg = await prisma.review.aggregate({
+      where: { productId, status: 'APPROVED' },
+      _avg: { rating: true },
+      _count: { rating: true },
+    });
+
     return response(res, {
       status: 'success',
       message: 'Product',
-      data: product,
+      data: {
+        ...product,
+        reviewSummary: {
+          averageRating: reviewAgg._avg.rating || 0,
+          reviewCount: reviewAgg._count.rating,
+        },
+      },
       status_code: 200
     });
   } catch (err) {
@@ -230,7 +242,14 @@ async function createProduct(req, res, next) {
       priceCents,
       imageUrl,
       isActive,
-      isNewArrival
+      isNewArrival,
+      comparePriceCents,
+      longDescription,
+      productDetails,
+      dimensions,
+      careAndCleaning,
+      specifications,
+      tags
     } = req.body;
 
     const validationError = await validateRelatedEntities({
@@ -270,9 +289,17 @@ async function createProduct(req, res, next) {
         vendorId,
         collectionId,
         description,
+        priceCents,
         imageUrl,
         isActive,
-        isNewArrival
+        isNewArrival,
+        comparePriceCents,
+        longDescription,
+        productDetails,
+        dimensions,
+        careAndCleaning,
+        specifications,
+        tags
       }
     });
 
@@ -301,7 +328,14 @@ async function updateProduct(req, res, next) {
       priceCents,
       imageUrl,
       isActive,
-      isNewArrival
+      isNewArrival,
+      comparePriceCents,
+      longDescription,
+      productDetails,
+      dimensions,
+      careAndCleaning,
+      specifications,
+      tags
     } = req.body;
 
     const currentProduct = await prisma.product.findUnique({
@@ -361,9 +395,17 @@ async function updateProduct(req, res, next) {
       vendorId,
       collectionId,
       description,
+      priceCents,
       imageUrl,
       isActive,
-      isNewArrival
+      isNewArrival,
+      comparePriceCents,
+      longDescription,
+      productDetails,
+      dimensions,
+      careAndCleaning,
+      specifications,
+      tags
     };
 
     if (name) {

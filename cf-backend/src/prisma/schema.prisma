@@ -131,10 +131,17 @@ model Product {
   orderItems    OrderItem[]
   reviews       Review[]
   wishlistItems WishlistItem[]
-  isActive      Boolean        @default(true)
-  isNewArrival  Boolean        @default(false)
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
+  isActive           Boolean        @default(true)
+  isNewArrival       Boolean        @default(false)
+  comparePriceCents  Int?
+  longDescription    String?
+  productDetails     String[]       @default([])
+  dimensions         String[]       @default([])
+  careAndCleaning    String?
+  specifications     Json?
+  tags               String[]       @default([])
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
 }
 
 model Brand {
