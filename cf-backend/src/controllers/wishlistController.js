@@ -6,18 +6,26 @@ function buildWishlistProductSelect() {
     id: true,
     name: true,
     slug: true,
-    imageUrl: true,
+    images: true,
     priceCents: true,
     isActive: true,
   };
 }
 
 async function fetchUserWishlist(userId) {
-  return prisma.wishlistItem.findMany({
+  const items = await prisma.wishlistItem.findMany({
     where: { userId },
     include: { product: { select: buildWishlistProductSelect() } },
     orderBy: { createdAt: 'desc' },
   });
+
+  return items.map((item) => ({
+    ...item,
+    product: {
+      ...item.product,
+      imageUrl: item.product.images[0]?.url,
+    },
+  }));
 }
 
 async function getWishlist(req, res, next) {
