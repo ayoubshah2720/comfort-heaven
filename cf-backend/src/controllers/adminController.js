@@ -184,6 +184,84 @@ async function deactivateUser(req, res, next) {
   }
 }
 
+async function reactivateUser(req, res, next) {
+  try {
+    const { id } = req.params;
+    const user = await prisma.user.update({
+      where: { id },
+      data: { isActive: true }
+    });
+
+    return response(res, {
+      status: 'success',
+      message: 'User reactivated',
+      data: { id: user.id, isActive: user.isActive },
+      status_code: 200
+    });
+  } catch (err) {
+    return next(err);
+  }
+}
+
+async function changeUserRole(req, res, next) {
+  try {
+    const { id } = req.params;
+    const { role } = req.body;
+
+    if (!['USER', 'ADMIN'].includes(role)) {
+      return response(res, {
+        status: 'error',
+        message: 'Invalid role. Must be USER or ADMIN',
+        data: null,
+        status_code: 400
+      });
+    }
+
+    if (req.user.id === id) {
+      return response(res, {
+        status: 'error',
+        message: 'Cannot change your own role',
+        data: null,
+        status_code: 400
+      });
+    }
+
+    const user = await prisma.user.update({
+      where: { id },
+      data: { role }
+    });
+
+    return response(res, {
+      status: 'success',
+      message: 'User role updated',
+      data: { id: user.id, role: user.role },
+      status_code: 200
+    });
+  } catch (err) {
+    return next(err);
+  }
+}
+
+async function getDashboardStats(req, res, next) {
+  try {
+    const [userCount, productCount, categoryCount, orderCount] = await Promise.all([
+      prisma.user.count(),
+      prisma.product.count(),
+      prisma.category.count(),
+      prisma.order.count()
+    ]);
+
+    return response(res, {
+      status: 'success',
+      message: 'Dashboard stats',
+      data: { userCount, productCount, categoryCount, orderCount },
+      status_code: 200
+    });
+  } catch (err) {
+    return next(err);
+  }
+}
+
 module.exports = {
   createCategory,
   updateCategory,
@@ -192,5 +270,8 @@ module.exports = {
   updateSubCategory,
   deleteSubCategory,
   listUsers,
-  deactivateUser
+  deactivateUser,
+  reactivateUser,
+  changeUserRole,
+  getDashboardStats
 };

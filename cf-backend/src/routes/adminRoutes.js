@@ -7,7 +7,10 @@ const {
   updateSubCategory,
   deleteSubCategory,
   listUsers,
-  deactivateUser
+  deactivateUser,
+  reactivateUser,
+  changeUserRole,
+  getDashboardStats
 } = require('../controllers/adminController');
 const { listCategories } = require('../controllers/categoryController');
 const {
@@ -15,6 +18,7 @@ const {
   updateProduct,
   listAdminProducts,
   getProductById,
+  adminGetProductById,
   addProductImage,
   removeProductImage,
   deleteProduct
@@ -90,6 +94,8 @@ const router = express.Router();
 
 router.use(authenticate, authorizeRoles('ADMIN'));
 
+router.get('/dashboard/stats', getDashboardStats);
+
 router.get('/categories', listCategories);
 router.post('/categories', categoryCreateValidation, validate, createCategory);
 router.patch('/categories/:id', categoryUpdateValidation, validate, updateCategory);
@@ -102,9 +108,11 @@ router.delete('/subcategories/:id', deleteSubCategory);
 
 router.get('/users', listUsers);
 router.patch('/users/:id/deactivate', deactivateUser);
+router.patch('/users/:id/reactivate', reactivateUser);
+router.patch('/users/:id/role', changeUserRole);
 
 router.get('/products', listAdminProducts);
-router.get('/products/:productId', getProductById);
+router.get('/products/:productId', adminGetProductById);
 router.post('/products', productCreateValidation, validate, createProduct);
 router.put('/products/:productId', productUpdateValidation, validate, updateProduct);
 router.delete('/products/:productId', deleteProduct);

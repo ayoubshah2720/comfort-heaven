@@ -229,6 +229,34 @@ async function getProductById(req, res, next) {
   }
 }
 
+async function adminGetProductById(req, res, next) {
+  try {
+    const { productId } = req.params;
+    const product = await prisma.product.findUnique({
+      where: { id: productId },
+      include: withProductRelations()
+    });
+
+    if (!product) {
+      return response(res, {
+        status: 'error',
+        message: 'Product not found',
+        data: null,
+        status_code: 404
+      });
+    }
+
+    return response(res, {
+      status: 'success',
+      message: 'Product',
+      data: product,
+      status_code: 200
+    });
+  } catch (err) {
+    return next(err);
+  }
+}
+
 async function createProduct(req, res, next) {
   try {
     const {
@@ -560,6 +588,7 @@ module.exports = {
   listNewArrivals,
   listAdminProducts,
   getProductById,
+  adminGetProductById,
   createProduct,
   updateProduct,
   deleteProduct,
