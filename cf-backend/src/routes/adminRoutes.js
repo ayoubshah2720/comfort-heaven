@@ -10,7 +10,8 @@ const {
   deactivateUser,
   reactivateUser,
   changeUserRole,
-  getDashboardStats
+  getDashboardStats,
+  getDashboardOverview
 } = require('../controllers/adminController');
 const { listCategories } = require('../controllers/categoryController');
 const {
@@ -95,6 +96,7 @@ const router = express.Router();
 router.use(authenticate, authorizeRoles('ADMIN'));
 
 router.get('/dashboard/stats', getDashboardStats);
+router.get('/dashboard/overview', getDashboardOverview);
 
 router.get('/categories', listCategories);
 router.post('/categories', categoryCreateValidation, validate, createCategory);
