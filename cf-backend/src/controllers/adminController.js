@@ -313,7 +313,7 @@ async function getDashboardOverview(req, res, next) {
       prisma.user.findMany({
         select: { id: true, name: true, email: true, role: true, isActive: true, createdAt: true },
         orderBy: { createdAt: 'desc' },
-        take: 5
+        take: 8
       }),
       prisma.product.findMany({
         select: {
@@ -321,7 +321,7 @@ async function getDashboardOverview(req, res, next) {
           category: { select: { name: true } }
         },
         orderBy: { createdAt: 'desc' },
-        take: 5
+        take: 8
       }),
       prisma.category.findMany({
         select: {
@@ -329,7 +329,7 @@ async function getDashboardOverview(req, res, next) {
           _count: { select: { products: true } }
         },
         orderBy: { createdAt: 'desc' },
-        take: 5
+        take: 8
       })
     ]);
 
