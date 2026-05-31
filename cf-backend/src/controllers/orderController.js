@@ -132,7 +132,9 @@ async function checkout(req, res, next) {
       shippingCents = 0,
       taxCents = 0,
       discountCents = 0,
-      currency = 'USD'
+      currency = 'USD',
+      addressId,
+      shippingAddress
     } = req.body || {};
 
     const cart = await prisma.cart.findUnique({
@@ -169,6 +171,24 @@ async function checkout(req, res, next) {
       normalizedDiscount
     );
 
+    let resolvedAddress = null;
+    if (addressId) {
+      const saved = await prisma.address.findFirst({
+        where: { id: addressId, userId: req.user.id }
+      });
+      if (!saved) {
+        return response(res, {
+          status: 'error',
+          message: 'Address not found',
+          data: null,
+          status_code: 404
+        });
+      }
+      resolvedAddress = saved;
+    } else if (shippingAddress) {
+      resolvedAddress = shippingAddress;
+    }
+
     const cartItemData = cart.items.map((item) => ({
       productId: item.productId,
       productName: item.product.name,
@@ -193,6 +213,17 @@ async function checkout(req, res, next) {
           totalCents: totals.totalCents,
           currency: (currency || 'USD').toUpperCase(),
           status: 'PENDING',
+          ...(resolvedAddress ? {
+            shippingLabel: resolvedAddress.label || null,
+            shippingCompany: resolvedAddress.company || null,
+            shippingAddress1: resolvedAddress.address1 || null,
+            shippingAddress2: resolvedAddress.address2 || null,
+            shippingCity: resolvedAddress.city || null,
+            shippingState: resolvedAddress.state || null,
+            shippingZipCode: resolvedAddress.zipCode || null,
+            shippingCountry: resolvedAddress.country || null,
+            shippingPhone: resolvedAddress.phone || null,
+          } : {}),
           items: {
             create: cartItemData
           }

@@ -1,7 +1,8 @@
 const express = require('express');
-const { listCategories, getCategoryBySlug } = require('../controllers/categoryController');
+const { listCategories, getCategoryBySlug, listHeaderCategories } = require('../controllers/categoryController');
 const {
   listProducts,
+  listNewArrivals,
   getProductById,
   search
 } = require('../controllers/productController');
@@ -24,30 +25,49 @@ const {
   rejectQuote
 } = require('../controllers/quoteController');
 const {
+  getWishlist,
+  toggleWishlistItem,
+  removeWishlistItem
+} = require('../controllers/wishlistController');
+const {
+  listAddresses,
+  createAddress,
+  updateAddress,
+  deleteAddress,
+  setDefaultAddress
+} = require('../controllers/addressController');
+const {
   listReviews,
   createReview
 } = require('../controllers/reviewController');
 const { listTestimonials } = require('../controllers/testimonialController');
+const { subscribe } = require('../controllers/newsletterController');
+const { productListQueryValidation } = require('../validators/productValidators');
 const { cartItemValidation, cartItemUpdateValidation } = require('../validators/cartValidators');
 const { quoteCreateValidation } = require('../validators/quoteValidators');
 const { reviewCreateValidation } = require('../validators/reviewValidators');
 const { checkoutValidation } = require('../validators/orderValidators');
+const { wishlistItemValidation } = require('../validators/wishlistValidators');
+const { addressCreateValidation, addressUpdateValidation } = require('../validators/addressValidators');
+const { newsletterSubscribeValidation } = require('../validators/newsletterValidators');
 const { authenticate } = require('../middleware/auth');
 const validate = require('../validators/validate');
 
 const router = express.Router();
 
 router.get('/categories', listCategories);
+router.get('/categories/header', listHeaderCategories);
 router.get('/categories/:slug', getCategoryBySlug);
 
 router.get('/collections', listCollections);
 router.get('/brands', listBrands);
 router.get('/vendors', listVendors);
-router.get('/products', listProducts);
+router.get('/products', productListQueryValidation, validate, listProducts);
 router.get('/invoices', authenticate, listInvoices);
 router.get('/invoices/:invoiceId', authenticate, getInvoiceById);
 router.get('/search', search);
 router.get('/products/search', search);
+router.get('/products/new-arrivals', listNewArrivals);
 router.get('/products/:productId', getProductById);
 router.get('/cart', authenticate, getCart);
 router.post('/cart/items', authenticate, cartItemValidation, validate, addCartItem);
@@ -63,11 +83,22 @@ router.get('/posts', listPosts);
 router.get('/posts/:slug', getPostBySlug);
 router.get('/tags', listTags);
 
+router.get('/wishlist', authenticate, getWishlist);
+router.post('/wishlist/toggle', authenticate, wishlistItemValidation, validate, toggleWishlistItem);
+router.delete('/wishlist/items/:itemId', authenticate, removeWishlistItem);
+
+router.get('/addresses', authenticate, listAddresses);
+router.post('/addresses', authenticate, addressCreateValidation, validate, createAddress);
+router.put('/addresses/:addressId', authenticate, addressUpdateValidation, validate, updateAddress);
+router.delete('/addresses/:addressId', authenticate, deleteAddress);
+router.post('/addresses/:addressId/default', authenticate, setDefaultAddress);
+
 router.get('/quotes', authenticate, listQuotes);
 router.post('/quotes', authenticate, quoteCreateValidation, validate, createQuote);
 router.get('/quotes/:quoteId', authenticate, getQuoteById);
 router.post('/quotes/:quoteId/accept', authenticate, acceptQuote);
 router.post('/quotes/:quoteId/reject', authenticate, rejectQuote);
 
+router.post('/newsletter/subscribe', newsletterSubscribeValidation, validate, subscribe);
 
 module.exports = router;

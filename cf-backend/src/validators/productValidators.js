@@ -1,4 +1,4 @@
-const { body } = require('express-validator');
+const { body, query } = require('express-validator');
 
 const productCreateValidation = [
   body('name').trim().notEmpty().withMessage('Name is required'),
@@ -10,7 +10,20 @@ const productCreateValidation = [
   body('description').optional().isString(),
   body('imageUrl').optional().isString(),
   body('priceCents').optional().isInt({ min: 0 }).withMessage('priceCents must be a non-negative integer'),
-  body('isActive').optional().isBoolean()
+  body('isActive').optional().isBoolean(),
+  body('isNewArrival').optional().isBoolean(),
+  body('comparePriceCents').optional().isInt({ min: 0 }),
+  body('longDescription').optional().isString(),
+  body('productDetails').optional().isArray(),
+  body('productDetails.*').optional().isString(),
+  body('dimensions').optional().isArray(),
+  body('dimensions.*').optional().isString(),
+  body('careAndCleaning').optional().isString(),
+  body('specifications').optional().isArray(),
+  body('specifications.*.label').optional().isString(),
+  body('specifications.*.value').optional().isString(),
+  body('tags').optional().isArray(),
+  body('tags.*').optional().isString()
 ];
 
 const productUpdateValidation = [
@@ -23,13 +36,37 @@ const productUpdateValidation = [
   body('description').optional().isString(),
   body('imageUrl').optional().isString(),
   body('priceCents').optional().isInt({ min: 0 }).withMessage('priceCents must be a non-negative integer'),
-  body('isActive').optional().isBoolean()
+  body('isActive').optional().isBoolean(),
+  body('isNewArrival').optional().isBoolean(),
+  body('comparePriceCents').optional().isInt({ min: 0 }),
+  body('longDescription').optional().isString(),
+  body('productDetails').optional().isArray(),
+  body('productDetails.*').optional().isString(),
+  body('dimensions').optional().isArray(),
+  body('dimensions.*').optional().isString(),
+  body('careAndCleaning').optional().isString(),
+  body('specifications').optional().isArray(),
+  body('specifications.*.label').optional().isString(),
+  body('specifications.*.value').optional().isString(),
+  body('tags').optional().isArray(),
+  body('tags.*').optional().isString()
 ];
 
 const productImageValidation = [
   body('url').trim().notEmpty().withMessage('Image URL is required'),
+  body('publicId').optional().isString(),
   body('altText').optional().isString(),
-  body('isCover').optional().isBoolean()
+  body('isCover').optional().isBoolean(),
+  body('syncDefault').optional().isBoolean()
 ];
 
-module.exports = { productCreateValidation, productUpdateValidation, productImageValidation };
+const productListQueryValidation = [
+  query('page').optional().isInt({ min: 1 }).withMessage('page must be an integer >= 1'),
+  query('pageSize').optional().isInt({ min: 1, max: 100 }).withMessage('pageSize must be 1-100'),
+  query('sortBy').optional().isIn(['createdAt', 'priceCents', 'name']).withMessage('sortBy must be createdAt, priceCents, or name'),
+  query('sortOrder').optional().isIn(['asc', 'desc']).withMessage('sortOrder must be asc or desc'),
+  query('minPrice').optional().isInt({ min: 0 }).withMessage('minPrice must be a non-negative integer'),
+  query('maxPrice').optional().isInt({ min: 0 }).withMessage('maxPrice must be a non-negative integer'),
+];
+
+module.exports = { productCreateValidation, productUpdateValidation, productImageValidation, productListQueryValidation };

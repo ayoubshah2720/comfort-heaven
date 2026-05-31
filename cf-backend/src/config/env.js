@@ -11,7 +11,10 @@ const env = {
   accessExpiresIn: process.env.ACCESS_EXPIRES_IN || '15m',
   refreshExpiresInDays: Number(process.env.REFRESH_EXPIRES_IN_DAYS || 7),
   cookieName: process.env.COOKIE_NAME || 'rid',
-  accessCookieName: process.env.ACCESS_COOKIE_NAME || 'aid'
+  accessCookieName: process.env.ACCESS_COOKIE_NAME || 'aid',
+  cloudinaryCloudName: process.env.CLOUDINARY_CLOUD_NAME || '',
+  cloudinaryApiKey: process.env.CLOUDINARY_API_KEY || '',
+  cloudinaryApiSecret: process.env.CLOUDINARY_API_SECRET || ''
 };
 
 module.exports = env;

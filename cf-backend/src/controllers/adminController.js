@@ -1,10 +1,22 @@
 const prisma = require('../db/prisma');
 const response = require('../utils/response');
 const slugify = require('../utils/slugify');
+const { uploadBufferToCloudinary, destroyCloudinaryImage } = require('../utils/cloudinaryAssets');
+
+const adminUserSelect = {
+  id: true,
+  name: true,
+  email: true,
+  role: true,
+  isActive: true,
+  createdAt: true,
+  profileImageUrl: true,
+  profileImagePublicId: true
+};
 
 async function createCategory(req, res, next) {
   try {
-    const { name, description, imageUrl, isActive } = req.body;
+    const { name, description, imageUrl, isActive, showInHeader, headerOrder } = req.body;
     const slug = slugify(name);
 
     const existing = await prisma.category.findUnique({ where: { slug } });
@@ -18,7 +30,7 @@ async function createCategory(req, res, next) {
     }
 
     const category = await prisma.category.create({
-      data: { name, slug, description, imageUrl, isActive }
+      data: { name, slug, description, imageUrl, isActive, showInHeader, headerOrder }
     });
 
     return response(res, {
@@ -35,9 +47,9 @@ async function createCategory(req, res, next) {
 async function updateCategory(req, res, next) {
   try {
     const { id } = req.params;
-    const { name, description, imageUrl, isActive } = req.body;
+    const { name, description, imageUrl, isActive, showInHeader, headerOrder } = req.body;
 
-    const data = { description, imageUrl, isActive };
+    const data = { description, imageUrl, isActive, showInHeader, headerOrder };
     if (name) {
       data.name = name;
       data.slug = slugify(name);
@@ -151,7 +163,7 @@ async function deleteSubCategory(req, res, next) {
 async function listUsers(req, res, next) {
   try {
     const users = await prisma.user.findMany({
-      select: { id: true, name: true, email: true, role: true, isActive: true, createdAt: true }
+      select: adminUserSelect
     });
 
     return response(res, {
@@ -184,6 +196,293 @@ async function deactivateUser(req, res, next) {
   }
 }
 
+async function reactivateUser(req, res, next) {
+  try {
+    const { id } = req.params;
+    const user = await prisma.user.update({
+      where: { id },
+      data: { isActive: true }
+    });
+
+    return response(res, {
+      status: 'success',
+      message: 'User reactivated',
+      data: { id: user.id, isActive: user.isActive },
+      status_code: 200
+    });
+  } catch (err) {
+    return next(err);
+  }
+}
+
+async function changeUserRole(req, res, next) {
+  try {
+    const { id } = req.params;
+    const { role } = req.body;
+
+    if (!['USER', 'ADMIN'].includes(role)) {
+      return response(res, {
+        status: 'error',
+        message: 'Invalid role. Must be USER or ADMIN',
+        data: null,
+        status_code: 400
+      });
+    }
+
+    if (req.user.id === id) {
+      return response(res, {
+        status: 'error',
+        message: 'Cannot change your own role',
+        data: null,
+        status_code: 400
+      });
+    }
+
+    const user = await prisma.user.update({
+      where: { id },
+      data: { role }
+    });
+
+    return response(res, {
+      status: 'success',
+      message: 'User role updated',
+      data: { id: user.id, role: user.role },
+      status_code: 200
+    });
+  } catch (err) {
+    return next(err);
+  }
+}
+
+async function uploadUserProfileImage(req, res, next) {
+  try {
+    const { id } = req.params;
+
+    if (!req.file) {
+      return response(res, {
+        status: 'error',
+        message: 'Image file is required',
+        data: null,
+        status_code: 400
+      });
+    }
+
+    const existingUser = await prisma.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        profileImageUrl: true,
+        profileImagePublicId: true
+      }
+    });
+
+    if (!existingUser) {
+      return response(res, {
+        status: 'error',
+        message: 'User not found',
+        data: null,
+        status_code: 404
+      });
+    }
+
+    const uploadedImage = await uploadBufferToCloudinary(req.file.buffer, {
+      folder: 'admin_user_profiles'
+    });
+
+    let updatedUser;
+    try {
+      updatedUser = await prisma.user.update({
+        where: { id },
+        data: {
+          profileImageUrl: uploadedImage.secure_url,
+          profileImagePublicId: uploadedImage.public_id
+        },
+        select: adminUserSelect
+      });
+    } catch (err) {
+      await destroyCloudinaryImage(uploadedImage.public_id).catch(() => null);
+      throw err;
+    }
+
+    let message = 'Profile image uploaded';
+    if (existingUser.profileImagePublicId) {
+      try {
+        await destroyCloudinaryImage(existingUser.profileImagePublicId);
+      } catch (cleanupErr) {
+        message = 'Profile image updated, but previous image cleanup failed';
+      }
+    }
+
+    return response(res, {
+      status: 'success',
+      message,
+      data: updatedUser,
+      status_code: 200
+    });
+  } catch (err) {
+    return next(err);
+  }
+}
+
+async function removeUserProfileImage(req, res, next) {
+  try {
+    const { id } = req.params;
+
+    const existingUser = await prisma.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        profileImageUrl: true,
+        profileImagePublicId: true
+      }
+    });
+
+    if (!existingUser) {
+      return response(res, {
+        status: 'error',
+        message: 'User not found',
+        data: null,
+        status_code: 404
+      });
+    }
+
+    if (existingUser.profileImagePublicId) {
+      await destroyCloudinaryImage(existingUser.profileImagePublicId);
+    }
+
+    const updatedUser = await prisma.user.update({
+      where: { id },
+      data: {
+        profileImageUrl: null,
+        profileImagePublicId: null
+      },
+      select: adminUserSelect
+    });
+
+    return response(res, {
+      status: 'success',
+      message: 'Profile image removed',
+      data: updatedUser,
+      status_code: 200
+    });
+  } catch (err) {
+    return next(err);
+  }
+}
+
+async function getDashboardStats(req, res, next) {
+  try {
+    const [userCount, productCount, categoryCount, orderCount] = await Promise.all([
+      prisma.user.count(),
+      prisma.product.count(),
+      prisma.category.count(),
+      prisma.order.count()
+    ]);
+
+    return response(res, {
+      status: 'success',
+      message: 'Dashboard stats',
+      data: { userCount, productCount, categoryCount, orderCount },
+      status_code: 200
+    });
+  } catch (err) {
+    return next(err);
+  }
+}
+
+async function getDashboardOverview(req, res, next) {
+  try {
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
+    sevenDaysAgo.setHours(0, 0, 0, 0);
+
+    function fillDays(rows) {
+      const map = {};
+      for (const r of rows) map[r.date] = r.count;
+      const result = [];
+      for (let i = 0; i < 7; i++) {
+        const d = new Date(sevenDaysAgo);
+        d.setDate(d.getDate() + i);
+        const key = d.toISOString().slice(0, 10);
+        result.push({ date: key, count: map[key] || 0 });
+      }
+      return result;
+    }
+
+    const [
+      usersByDay,
+      productsByDay,
+      categoriesByDay,
+      recentUsers,
+      recentProducts,
+      recentCategories
+    ] = await Promise.all([
+      prisma.$queryRaw`
+        SELECT DATE("createdAt")::text AS date, CAST(COUNT(*) AS INTEGER) AS count
+        FROM "User"
+        WHERE "createdAt" >= ${sevenDaysAgo}
+        GROUP BY DATE("createdAt")
+        ORDER BY date
+      `,
+      prisma.$queryRaw`
+        SELECT DATE("createdAt")::text AS date, CAST(COUNT(*) AS INTEGER) AS count
+        FROM "Product"
+        WHERE "createdAt" >= ${sevenDaysAgo}
+        GROUP BY DATE("createdAt")
+        ORDER BY date
+      `,
+      prisma.$queryRaw`
+        SELECT DATE("createdAt")::text AS date, CAST(COUNT(*) AS INTEGER) AS count
+        FROM "Category"
+        WHERE "createdAt" >= ${sevenDaysAgo}
+        GROUP BY DATE("createdAt")
+        ORDER BY date
+      `,
+      prisma.user.findMany({
+        select: adminUserSelect,
+        orderBy: { createdAt: 'desc' },
+        take: 8
+      }),
+      prisma.product.findMany({
+        select: {
+          id: true, name: true, slug: true, priceCents: true, isActive: true, createdAt: true,
+          category: { select: { name: true } }
+        },
+        orderBy: { createdAt: 'desc' },
+        take: 8
+      }),
+      prisma.category.findMany({
+        select: {
+          id: true, name: true, slug: true, isActive: true, createdAt: true,
+          _count: { select: { products: true } }
+        },
+        orderBy: { createdAt: 'desc' },
+        take: 8
+      })
+    ]);
+
+    return response(res, {
+      status: 'success',
+      message: 'Dashboard overview',
+      data: {
+        charts: {
+          users: fillDays(usersByDay),
+          products: fillDays(productsByDay),
+          categories: fillDays(categoriesByDay)
+        },
+        tables: {
+          users: recentUsers,
+          products: recentProducts,
+          categories: recentCategories
+        }
+      },
+      status_code: 200
+    });
+  } catch (err) {
+    return next(err);
+  }
+}
+
 module.exports = {
   createCategory,
   updateCategory,
@@ -192,5 +491,11 @@ module.exports = {
   updateSubCategory,
   deleteSubCategory,
   listUsers,
-  deactivateUser
+  deactivateUser,
+  reactivateUser,
+  changeUserRole,
+  uploadUserProfileImage,
+  removeUserProfileImage,
+  getDashboardStats,
+  getDashboardOverview
 };

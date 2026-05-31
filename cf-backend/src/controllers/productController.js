@@ -1,6 +1,7 @@
 const slugify = require('../utils/slugify');
 const response = require('../utils/response');
 const prisma = require('../db/prisma');
+const { uploadBufferToCloudinary, destroyCloudinaryImage } = require('../utils/cloudinaryAssets');
 
 function withProductRelations(select = true) {
   const include = {
@@ -19,6 +20,41 @@ function withProductRelations(select = true) {
   }
 
   return include;
+}
+
+function parseBooleanInput(value, fallback = false) {
+  if (typeof value === 'boolean') return value;
+  if (typeof value === 'string') {
+    return value === 'true' || value === '1';
+  }
+  return fallback;
+}
+
+async function syncProductDefaultImage(productId) {
+  const coverImage = await prisma.productImage.findFirst({
+    where: { productId, isCover: true },
+    orderBy: { createdAt: 'desc' },
+    select: { url: true }
+  });
+
+  if (coverImage) {
+    await prisma.product.update({
+      where: { id: productId },
+      data: { imageUrl: coverImage.url }
+    });
+    return;
+  }
+
+  const fallbackImage = await prisma.productImage.findFirst({
+    where: { productId },
+    orderBy: { createdAt: 'asc' },
+    select: { url: true }
+  });
+
+  await prisma.product.update({
+    where: { id: productId },
+    data: { imageUrl: fallbackImage ? fallbackImage.url : null }
+  });
 }
 
 async function validateRelatedEntities({ categoryId, subCategoryId, brandId, vendorId, collectionId }) {
@@ -72,8 +108,14 @@ function buildProductWhere(query, isAdmin) {
     subCategorySlug,
     brandId,
     vendorId,
-    collectionId
+    collectionId,
+    minPrice,
+    maxPrice
   } = query;
+
+  const priceCentsFilter = {};
+  if (minPrice !== undefined) priceCentsFilter.gte = Number(minPrice);
+  if (maxPrice !== undefined) priceCentsFilter.lte = Number(maxPrice);
 
   return {
     ...(isAdmin === false ? { isActive: true } : {}),
@@ -85,6 +127,7 @@ function buildProductWhere(query, isAdmin) {
     ...(collectionId ? { collectionId } : {}),
     ...(categorySlug ? { category: { slug: categorySlug } } : {}),
     ...(subCategorySlug ? { subCategory: { slug: subCategorySlug } } : {}),
+    ...(Object.keys(priceCentsFilter).length > 0 ? { priceCents: priceCentsFilter } : {}),
     ...(q
       ? {
           OR: [
@@ -96,18 +139,51 @@ function buildProductWhere(query, isAdmin) {
   };
 }
 
-async function listProducts(req, res, next) {
+async function listNewArrivals(req, res, next) {
   try {
     const products = await prisma.product.findMany({
-      where: buildProductWhere(req.query, false),
+      where: { isActive: true, isNewArrival: true },
       include: withProductRelations(),
       orderBy: { createdAt: 'desc' }
     });
+    return response(res, {
+      status: 'success',
+      message: 'New arrivals',
+      data: products,
+      status_code: 200
+    });
+  } catch (err) {
+    return next(err);
+  }
+}
+
+async function listProducts(req, res, next) {
+  try {
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const pageSize = Math.min(100, Math.max(1, parseInt(req.query.pageSize) || 12));
+    const sortBy = ['createdAt', 'priceCents', 'name'].includes(req.query.sortBy) ? req.query.sortBy : 'createdAt';
+    const sortOrder = req.query.sortOrder === 'asc' ? 'asc' : 'desc';
+    const skip = (page - 1) * pageSize;
+    const where = buildProductWhere(req.query, false);
+
+    const [products, total] = await Promise.all([
+      prisma.product.findMany({
+        where,
+        include: withProductRelations(),
+        orderBy: { [sortBy]: sortOrder },
+        skip,
+        take: pageSize
+      }),
+      prisma.product.count({ where })
+    ]);
 
     return response(res, {
       status: 'success',
       message: 'Products',
-      data: products,
+      data: {
+        products,
+        pagination: { page, pageSize, total, totalPages: Math.ceil(total / pageSize) }
+      },
       status_code: 200
     });
   } catch (err) {
@@ -117,16 +193,31 @@ async function listProducts(req, res, next) {
 
 async function listAdminProducts(req, res, next) {
   try {
-    const products = await prisma.product.findMany({
-      where: buildProductWhere(req.query, true),
-      include: withProductRelations(),
-      orderBy: { createdAt: 'desc' }
-    });
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const pageSize = Math.min(100, Math.max(1, parseInt(req.query.pageSize) || 12));
+    const sortBy = ['createdAt', 'priceCents', 'name'].includes(req.query.sortBy) ? req.query.sortBy : 'createdAt';
+    const sortOrder = req.query.sortOrder === 'asc' ? 'asc' : 'desc';
+    const skip = (page - 1) * pageSize;
+    const where = buildProductWhere(req.query, true);
+
+    const [products, total] = await Promise.all([
+      prisma.product.findMany({
+        where,
+        include: withProductRelations(),
+        orderBy: { [sortBy]: sortOrder },
+        skip,
+        take: pageSize
+      }),
+      prisma.product.count({ where })
+    ]);
 
     return response(res, {
       status: 'success',
       message: 'Products',
-      data: products,
+      data: {
+        products,
+        pagination: { page, pageSize, total, totalPages: Math.ceil(total / pageSize) }
+      },
       status_code: 200
     });
   } catch (err) {
@@ -143,6 +234,46 @@ async function getProductById(req, res, next) {
     });
 
     if (!product || !product.isActive) {
+      return response(res, {
+        status: 'error',
+        message: 'Product not found',
+        data: null,
+        status_code: 404
+      });
+    }
+
+    const reviewAgg = await prisma.review.aggregate({
+      where: { productId, status: 'APPROVED' },
+      _avg: { rating: true },
+      _count: { rating: true },
+    });
+
+    return response(res, {
+      status: 'success',
+      message: 'Product',
+      data: {
+        ...product,
+        reviewSummary: {
+          averageRating: reviewAgg._avg.rating || 0,
+          reviewCount: reviewAgg._count.rating,
+        },
+      },
+      status_code: 200
+    });
+  } catch (err) {
+    return next(err);
+  }
+}
+
+async function adminGetProductById(req, res, next) {
+  try {
+    const { productId } = req.params;
+    const product = await prisma.product.findUnique({
+      where: { id: productId },
+      include: withProductRelations()
+    });
+
+    if (!product) {
       return response(res, {
         status: 'error',
         message: 'Product not found',
@@ -174,7 +305,15 @@ async function createProduct(req, res, next) {
       description,
       priceCents,
       imageUrl,
-      isActive
+      isActive,
+      isNewArrival,
+      comparePriceCents,
+      longDescription,
+      productDetails,
+      dimensions,
+      careAndCleaning,
+      specifications,
+      tags
     } = req.body;
 
     const validationError = await validateRelatedEntities({
@@ -214,8 +353,17 @@ async function createProduct(req, res, next) {
         vendorId,
         collectionId,
         description,
+        priceCents,
         imageUrl,
-        isActive
+        isActive,
+        isNewArrival,
+        comparePriceCents,
+        longDescription,
+        productDetails,
+        dimensions,
+        careAndCleaning,
+        specifications,
+        tags
       }
     });
 
@@ -243,7 +391,15 @@ async function updateProduct(req, res, next) {
       description,
       priceCents,
       imageUrl,
-      isActive
+      isActive,
+      isNewArrival,
+      comparePriceCents,
+      longDescription,
+      productDetails,
+      dimensions,
+      careAndCleaning,
+      specifications,
+      tags
     } = req.body;
 
     const currentProduct = await prisma.product.findUnique({
@@ -303,8 +459,17 @@ async function updateProduct(req, res, next) {
       vendorId,
       collectionId,
       description,
+      priceCents,
       imageUrl,
-      isActive
+      isActive,
+      isNewArrival,
+      comparePriceCents,
+      longDescription,
+      productDetails,
+      dimensions,
+      careAndCleaning,
+      specifications,
+      tags
     };
 
     if (name) {
@@ -340,6 +505,19 @@ async function updateProduct(req, res, next) {
 async function deleteProduct(req, res, next) {
   try {
     const { productId } = req.params;
+
+    const productImages = await prisma.productImage.findMany({
+      where: { productId },
+      select: { publicId: true }
+    });
+
+    await Promise.all(
+      productImages
+        .map((image) => image.publicId)
+        .filter(Boolean)
+        .map((publicId) => destroyCloudinaryImage(publicId))
+    );
+
     await prisma.product.delete({ where: { id: productId } });
 
     return response(res, {
@@ -356,7 +534,7 @@ async function deleteProduct(req, res, next) {
 async function addProductImage(req, res, next) {
   try {
     const { productId } = req.params;
-    const { url, altText, isCover } = req.body;
+    const { url, publicId, altText, isCover, syncDefault } = req.body;
 
     const product = await prisma.product.findUnique({ where: { id: productId } });
     if (!product) {
@@ -368,13 +546,35 @@ async function addProductImage(req, res, next) {
       });
     }
 
-    const image = await prisma.productImage.create({
-      data: {
-        productId,
-        url,
-        altText,
-        isCover: Boolean(isCover)
+    const shouldBeCover = parseBooleanInput(isCover);
+    const shouldSyncDefault = parseBooleanInput(syncDefault) || shouldBeCover || !product.imageUrl;
+
+    const image = await prisma.$transaction(async (tx) => {
+      if (shouldBeCover) {
+        await tx.productImage.updateMany({
+          where: { productId, isCover: true },
+          data: { isCover: false }
+        });
       }
+
+      const createdImage = await tx.productImage.create({
+        data: {
+          productId,
+          url,
+          publicId: publicId || null,
+          altText,
+          isCover: shouldBeCover
+        }
+      });
+
+      if (shouldSyncDefault) {
+        await tx.product.update({
+          where: { id: productId },
+          data: { imageUrl: url }
+        });
+      }
+
+      return createdImage;
     });
 
     return response(res, {
@@ -383,6 +583,49 @@ async function addProductImage(req, res, next) {
       data: image,
       status_code: 201
     });
+  } catch (err) {
+    return next(err);
+  }
+}
+
+async function uploadProductImage(req, res, next) {
+  try {
+    const { productId } = req.params;
+    const { altText, isCover, syncDefault } = req.body;
+
+    if (!req.file) {
+      return response(res, {
+        status: 'error',
+        message: 'Image file is required',
+        data: null,
+        status_code: 400
+      });
+    }
+
+    const product = await prisma.product.findUnique({ where: { id: productId } });
+    if (!product) {
+      return response(res, {
+        status: 'error',
+        message: 'Product not found',
+        data: null,
+        status_code: 404
+      });
+    }
+
+    const uploadedAsset = await uploadBufferToCloudinary(req.file.buffer, {
+      folder: `products/${productId}`
+    });
+
+    req.body = {
+      ...req.body,
+      url: uploadedAsset.secure_url,
+      publicId: uploadedAsset.public_id,
+      altText,
+      isCover,
+      syncDefault
+    };
+
+    return addProductImage(req, res, next);
   } catch (err) {
     return next(err);
   }
@@ -402,7 +645,12 @@ async function removeProductImage(req, res, next) {
       });
     }
 
+    if (image.publicId) {
+      await destroyCloudinaryImage(image.publicId);
+    }
+
     await prisma.productImage.delete({ where: { id: imageId } });
+    await syncProductDefaultImage(productId);
 
     return response(res, {
       status: 'success',
@@ -456,12 +704,15 @@ async function search(req, res, next) {
 
 module.exports = {
   listProducts,
+  listNewArrivals,
   listAdminProducts,
   getProductById,
+  adminGetProductById,
   createProduct,
   updateProduct,
   deleteProduct,
   addProductImage,
+  uploadProductImage,
   removeProductImage,
   search
 };

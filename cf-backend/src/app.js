@@ -7,6 +7,7 @@ const pgPool = require('./db/pg');
 const authRoutes = require('./routes/authRoutes');
 const publicRoutes = require('./routes/publicRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const imageRoutes = require('./routes/imageRoutes');
 const errorHandler = require('./middleware/errorHandler');
 const response = require('./utils/response');
 
@@ -52,6 +53,7 @@ app.get('/health/db', async (req, res, next) => {
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1', publicRoutes);
 app.use('/api/v1/admin', adminRoutes);
+app.use('/api/image', imageRoutes);
 
 app.use(errorHandler);
 

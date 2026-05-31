@@ -36,6 +36,35 @@ npm run seed
 curl -i http://localhost:5000/health/db
 ```
 
+## Image upload
+
+Endpoint:
+
+- `POST /api/image/upload`
+
+Request:
+
+- `Content-Type: multipart/form-data`
+- Body field: `image`
+
+Example response:
+
+```json
+{
+  "success": true,
+  "url": "https://res.cloudinary.com/.../image/upload/v123/sample.jpg",
+  "public_id": "tools-uploads/sample"
+}
+```
+
+Example curl:
+
+```bash
+curl -X POST http://localhost:5000/api/image/upload \
+  -H "Content-Type: multipart/form-data" \
+  -F "image=@/path/to/file.jpg"
+```
+
 ## Auth Flow
 
 - Access token is returned in JSON and should be stored in memory on the client.
