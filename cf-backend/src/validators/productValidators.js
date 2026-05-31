@@ -54,8 +54,10 @@ const productUpdateValidation = [
 
 const productImageValidation = [
   body('url').trim().notEmpty().withMessage('Image URL is required'),
+  body('publicId').optional().isString(),
   body('altText').optional().isString(),
-  body('isCover').optional().isBoolean()
+  body('isCover').optional().isBoolean(),
+  body('syncDefault').optional().isBoolean()
 ];
 
 const productListQueryValidation = [

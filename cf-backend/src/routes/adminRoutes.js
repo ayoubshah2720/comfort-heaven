@@ -10,6 +10,8 @@ const {
   deactivateUser,
   reactivateUser,
   changeUserRole,
+  uploadUserProfileImage,
+  removeUserProfileImage,
   getDashboardStats,
   getDashboardOverview
 } = require('../controllers/adminController');
@@ -21,6 +23,7 @@ const {
   getProductById,
   adminGetProductById,
   addProductImage,
+  uploadProductImage,
   removeProductImage,
   deleteProduct
 } = require('../controllers/productController');
@@ -77,6 +80,7 @@ const {
   cancelOrder
 } = require('../controllers/orderController');
 const { authenticate, authorizeRoles } = require('../middleware/auth');
+const upload = require('../middleware/upload');
 const { categoryCreateValidation, categoryUpdateValidation } = require('../validators/categoryValidators');
 const { subCategoryCreateValidation, subCategoryUpdateValidation } = require('../validators/subCategoryValidators');
 const {
@@ -112,12 +116,15 @@ router.get('/users', listUsers);
 router.patch('/users/:id/deactivate', deactivateUser);
 router.patch('/users/:id/reactivate', reactivateUser);
 router.patch('/users/:id/role', changeUserRole);
+router.post('/users/:id/image', upload.single('image'), uploadUserProfileImage);
+router.delete('/users/:id/image', removeUserProfileImage);
 
 router.get('/products', listAdminProducts);
 router.get('/products/:productId', adminGetProductById);
 router.post('/products', productCreateValidation, validate, createProduct);
 router.put('/products/:productId', productUpdateValidation, validate, updateProduct);
 router.delete('/products/:productId', deleteProduct);
+router.post('/products/:productId/images/upload', upload.single('image'), uploadProductImage);
 router.post('/products/:productId/images', productImageValidation, validate, addProductImage);
 router.delete('/products/:productId/images/:imageId', removeProductImage);
 

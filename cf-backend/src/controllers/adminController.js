@@ -1,6 +1,18 @@
 const prisma = require('../db/prisma');
 const response = require('../utils/response');
 const slugify = require('../utils/slugify');
+const { uploadBufferToCloudinary, destroyCloudinaryImage } = require('../utils/cloudinaryAssets');
+
+const adminUserSelect = {
+  id: true,
+  name: true,
+  email: true,
+  role: true,
+  isActive: true,
+  createdAt: true,
+  profileImageUrl: true,
+  profileImagePublicId: true
+};
 
 async function createCategory(req, res, next) {
   try {
@@ -151,7 +163,7 @@ async function deleteSubCategory(req, res, next) {
 async function listUsers(req, res, next) {
   try {
     const users = await prisma.user.findMany({
-      select: { id: true, name: true, email: true, role: true, isActive: true, createdAt: true }
+      select: adminUserSelect
     });
 
     return response(res, {
@@ -242,6 +254,122 @@ async function changeUserRole(req, res, next) {
   }
 }
 
+async function uploadUserProfileImage(req, res, next) {
+  try {
+    const { id } = req.params;
+
+    if (!req.file) {
+      return response(res, {
+        status: 'error',
+        message: 'Image file is required',
+        data: null,
+        status_code: 400
+      });
+    }
+
+    const existingUser = await prisma.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        profileImageUrl: true,
+        profileImagePublicId: true
+      }
+    });
+
+    if (!existingUser) {
+      return response(res, {
+        status: 'error',
+        message: 'User not found',
+        data: null,
+        status_code: 404
+      });
+    }
+
+    const uploadedImage = await uploadBufferToCloudinary(req.file.buffer, {
+      folder: 'admin_user_profiles'
+    });
+
+    let updatedUser;
+    try {
+      updatedUser = await prisma.user.update({
+        where: { id },
+        data: {
+          profileImageUrl: uploadedImage.secure_url,
+          profileImagePublicId: uploadedImage.public_id
+        },
+        select: adminUserSelect
+      });
+    } catch (err) {
+      await destroyCloudinaryImage(uploadedImage.public_id).catch(() => null);
+      throw err;
+    }
+
+    let message = 'Profile image uploaded';
+    if (existingUser.profileImagePublicId) {
+      try {
+        await destroyCloudinaryImage(existingUser.profileImagePublicId);
+      } catch (cleanupErr) {
+        message = 'Profile image updated, but previous image cleanup failed';
+      }
+    }
+
+    return response(res, {
+      status: 'success',
+      message,
+      data: updatedUser,
+      status_code: 200
+    });
+  } catch (err) {
+    return next(err);
+  }
+}
+
+async function removeUserProfileImage(req, res, next) {
+  try {
+    const { id } = req.params;
+
+    const existingUser = await prisma.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        profileImageUrl: true,
+        profileImagePublicId: true
+      }
+    });
+
+    if (!existingUser) {
+      return response(res, {
+        status: 'error',
+        message: 'User not found',
+        data: null,
+        status_code: 404
+      });
+    }
+
+    if (existingUser.profileImagePublicId) {
+      await destroyCloudinaryImage(existingUser.profileImagePublicId);
+    }
+
+    const updatedUser = await prisma.user.update({
+      where: { id },
+      data: {
+        profileImageUrl: null,
+        profileImagePublicId: null
+      },
+      select: adminUserSelect
+    });
+
+    return response(res, {
+      status: 'success',
+      message: 'Profile image removed',
+      data: updatedUser,
+      status_code: 200
+    });
+  } catch (err) {
+    return next(err);
+  }
+}
+
 async function getDashboardStats(req, res, next) {
   try {
     const [userCount, productCount, categoryCount, orderCount] = await Promise.all([
@@ -311,7 +439,7 @@ async function getDashboardOverview(req, res, next) {
         ORDER BY date
       `,
       prisma.user.findMany({
-        select: { id: true, name: true, email: true, role: true, isActive: true, createdAt: true },
+        select: adminUserSelect,
         orderBy: { createdAt: 'desc' },
         take: 8
       }),
@@ -366,6 +494,8 @@ module.exports = {
   deactivateUser,
   reactivateUser,
   changeUserRole,
+  uploadUserProfileImage,
+  removeUserProfileImage,
   getDashboardStats,
   getDashboardOverview
 };
