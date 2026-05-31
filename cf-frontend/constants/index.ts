@@ -1,0 +1,10 @@
+export const SITE_NAME = "Furniture Shop";
+export const BRAND_COLOR = "#E8B800";
+export const BRAND_TEAL = "#3D6B6B";
+export const VAT_RATE = 0.15;
+export const ECO_TAX = 2.0;
+export const FLAT_SHIPPING_RATE = 8.0;
+export const STORE_PHONE_NUMBER = "+923001234567";
+export const STORE_PHONE_DISPLAY = "0300-1234567";
+export const STORE_EMAIL = "info@inteqfurniture.pk";
+export const STORE_WHATSAPP_NUMBER = "923001234567";
