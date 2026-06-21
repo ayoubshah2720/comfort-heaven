@@ -2,6 +2,11 @@ const { Pool } = require('pg');
 require('dotenv').config();
 
 const hasDatabaseUrl = Boolean(process.env.DATABASE_URL);
+const isProd = process.env.NODE_ENV === 'production';
+
+if (isProd && !hasDatabaseUrl) {
+  throw new Error('Missing required environment variable: DATABASE_URL');
+}
 
 const pool = new Pool(
   hasDatabaseUrl
