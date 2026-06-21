@@ -12,7 +12,7 @@ import {
 } from "@/store/slices/authSlice";
 import { selectHeaderCategories } from "@/store/slices/headerCategoriesSlice";
 import type { HeaderCategory } from "@/types/product";
-import Logo from "@/assets/icon.svg";
+import Logo from "@/assets/logo1.png";
 import Image from "next/image";
 import { HeartIcon, Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 
@@ -66,7 +66,7 @@ export default function Header({ initialCategories = [] }: HeaderProps) {
 
   return (
     <header className="bg-white shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 py-3 flex items-center gap-4">
+      <div className="max-w-7xl mx-auto px-4 pt-3 pb-1 flex items-center gap-4">
         <button
           className="lg:hidden flex-shrink-0 w-10 h-10 flex items-center justify-center"
           onClick={() => setMobileMenuOpen(true)}
@@ -75,17 +75,21 @@ export default function Header({ initialCategories = [] }: HeaderProps) {
           <Bars3Icon className="w-6 h-6 text-gray-700" />
         </button>
 
-        {/* Logo */}
-        <div className="flex items-center gap-4">
-          <Link href="/" className="flex-shrink-0 w-10 h-10 bg-[#E8B800] flex items-center justify-center rounded text-white font-bold text-xs">
-            <Image src={Logo} alt="Logo" width={30} height={30} unoptimized />
-          </Link>
+        <Link href="/" className="flex-shrink-0">
+          <Image
+            src={Logo}
+            alt="Royal Touch Interior"
+            className="h-20 w-auto max-w-[280px] object-contain"
+            priority
+          />
+        </Link>
 
-          <SearchBar className="hidden sm:block" />
+        <div className="hidden sm:flex flex-1 justify-center px-2">
+          <SearchBar className="w-full max-w-2xl" />
         </div>
 
         {/* Cart + Auth */}
-        <div className="flex items-center gap-4 text-sm text-gray-600 flex-shrink-0 ml-auto">
+        <div className="ml-auto flex items-center gap-4 text-sm text-gray-600 flex-shrink-0">
           <Link href="/profile/wishlist/" className="relative hover:text-[#E8B800]" aria-label="Wishlist">
             <HeartIcon className="w-5 h-5" />
             {wishlistCount > 0 && (
@@ -128,7 +132,7 @@ export default function Header({ initialCategories = [] }: HeaderProps) {
             <Link
               key={item.label}
               href={item.href}
-              className={`px-4 py-3 text-sm whitespace-nowrap transition-colors ${item.highlight === "yellow"
+              className={`px-4 py-2 text-sm whitespace-nowrap transition-colors ${item.highlight === "yellow"
                 ? "text-[#E8B800] font-semibold hover:text-[#d4a700]"
                 : item.highlight === "red"
                   ? "text-red-400 font-semibold hover:text-red-300"
@@ -155,9 +159,13 @@ export default function Header({ initialCategories = [] }: HeaderProps) {
           }`}
       >
         <div className="flex items-center justify-between p-4 border-b">
-          <div className="flex-shrink-0 w-10 h-10 bg-[#E8B800] flex items-center justify-center rounded text-white font-bold text-xs">
-            <Image src={Logo} alt="Logo" width={30} height={30} unoptimized />
-          </div>
+          <Link href="/" className="flex-shrink-0">
+            <Image
+              src={Logo}
+              alt="Royal Touch Interior"
+              className="h-16 w-auto max-w-[220px] object-contain"
+            />
+          </Link>
           <button
             className="w-10 h-10 flex items-center justify-center"
             onClick={() => setMobileMenuOpen(false)}

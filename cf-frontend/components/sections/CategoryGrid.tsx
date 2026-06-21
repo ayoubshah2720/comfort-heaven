@@ -73,7 +73,7 @@ function CategoryCard({ category }: CategoryCardProps) {
 
 export default function CategoryGrid({
   categories = [],
-  showMoreHref = "#",
+  showMoreHref = "/products",
 }: CategoryGridProps) {
   if (categories.length === 0) return null;
 

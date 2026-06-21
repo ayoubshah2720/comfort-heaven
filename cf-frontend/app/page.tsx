@@ -29,10 +29,10 @@ export default async function Home() {
       <div className="max-w-6xl mx-auto px-4 -mt-3 sm:-mt-6 relative z-10">
         <FeaturesBar />
       </div>
-      <CategoryGrid categories={categories} />
+      <CategoryGrid categories={categories} showMoreHref="/products" />
       <NewArrivals />
       <PopularProducts />
-      <FeaturedProducts />
+      <FeaturedProducts showMoreHref="/products" />
       <Newsletter />
       <Footer />
       <FloatingChatButton />

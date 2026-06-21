@@ -39,7 +39,7 @@ const defaultProducts: Product[] = [
 
 export default function FeaturedProducts({
   products = defaultProducts,
-  showMoreHref = "#",
+  showMoreHref = "/products",
 }: FeaturedProductsProps) {
   return (
     <section className="py-8 sm:py-12 bg-gray-50">

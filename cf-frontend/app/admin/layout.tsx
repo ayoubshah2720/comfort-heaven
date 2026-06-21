@@ -2,7 +2,7 @@ import AdminAuthGuard from "@/components/admin/AdminAuthGuard";
 import AdminLayout from "@/components/admin/AdminLayout";
 
 export const metadata = {
-  title: "Admin Panel — Comfort Heaven",
+  title: "Admin Panel - Royal Touch Interior",
 };
 
 export default function AdminRootLayout({
