@@ -10,8 +10,8 @@ import CategorySidebar from "./CategorySidebar";
 import CategoryProductGrid from "./CategoryProductGrid";
 
 interface CategoryProductSectionProps {
-  initialProducts: BackendProduct[];
-  initialPagination: PaginationMeta;
+  initialProducts?: BackendProduct[];
+  initialPagination?: PaginationMeta;
   subcategories: BackendSubCategory[];
   brands: BackendBrand[];
   categorySlug: string;
@@ -46,12 +46,26 @@ export default function CategoryProductSection({
     initialPagination,
   });
 
+  const hasInitialProducts = (initialProducts?.length ?? 0) > 0;
   const isInitialMount = useRef(true);
   const prevFiltersRef = useRef({ subCategorySlug, brandId, minPrice, maxPrice, sortBy, sortOrder, page });
 
   useEffect(() => {
     if (isInitialMount.current) {
       isInitialMount.current = false;
+      if (!hasInitialProducts) {
+        const filters: ProductFilters = {
+          pageSize: String(PAGE_SIZE),
+        };
+        if (subCategorySlug) filters.subCategorySlug = subCategorySlug;
+        if (brandId) filters.brandId = brandId;
+        if (minPrice !== null) filters.minPrice = String(minPrice);
+        if (maxPrice !== null) filters.maxPrice = String(maxPrice);
+        if (sortBy !== "createdAt") filters.sortBy = sortBy;
+        if (sortOrder !== "desc") filters.sortOrder = sortOrder;
+        if (page > 1) filters.page = String(page);
+        fetchProducts(filters);
+      }
       return;
     }
 
@@ -88,7 +102,7 @@ export default function CategoryProductSection({
     }, 150);
 
     return () => clearTimeout(timer);
-  }, [subCategorySlug, brandId, minPrice, maxPrice, sortBy, sortOrder, page, fetchProducts]);
+  }, [subCategorySlug, brandId, minPrice, maxPrice, sortBy, sortOrder, page, fetchProducts, hasInitialProducts]);
 
   useEffect(() => {
     const filters: ProductFilters = {};

@@ -64,7 +64,7 @@ export default function AdminSidebar({ open, onClose }: AdminSidebarProps) {
     <nav className="flex flex-col gap-1 p-4">
       <div className="mb-6 px-3 py-2">
         <h1 className="text-lg font-bold text-[#E8B800]">Admin Panel</h1>
-        <p className="text-xs text-gray-400">Comfort Heaven</p>
+        <p className="text-xs text-gray-400">Royal Touch Interior</p>
       </div>
       {navItems.map((item) => (
         <Link

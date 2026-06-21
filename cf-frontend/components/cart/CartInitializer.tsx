@@ -27,7 +27,10 @@ export default function CartInitializer() {
       if (isAuthenticated) {
         const guestItems = loadGuestCart();
         if (guestItems.length > 0) {
-          dispatch(syncGuestCartThunk(guestItems)).then(() => clearGuestCart());
+          dispatch(syncGuestCartThunk(guestItems))
+            .unwrap()
+            .then(() => clearGuestCart())
+            .catch(() => {});
         } else {
           dispatch(fetchCartThunk());
         }
@@ -46,7 +49,10 @@ export default function CartInitializer() {
     if (!wasAuth && isAuthenticated) {
       const guestItems = loadGuestCart();
       if (guestItems.length > 0) {
-        dispatch(syncGuestCartThunk(guestItems)).then(() => clearGuestCart());
+        dispatch(syncGuestCartThunk(guestItems))
+          .unwrap()
+          .then(() => clearGuestCart())
+          .catch(() => {});
       } else {
         dispatch(fetchCartThunk());
       }

@@ -32,7 +32,7 @@ function backendCartToItems(cart: BackendCart): CartItem[] {
     name: item.product.name,
     price: item.unitPriceCents / 100,
     originalPrice: item.product.priceCents / 100,
-    imageSrc: item.product.imageUrl || "/placeholder.png",
+    imageSrc: item.product.imageUrl || "/sofa.png",
     quantity: item.quantity,
     backendItemId: item.id,
   }));

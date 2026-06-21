@@ -11,7 +11,8 @@ import {
   logoutThunk,
 } from "@/store/slices/authSlice";
 import { selectHeaderCategories } from "@/store/slices/headerCategoriesSlice";
-import Logo from "@/assets/icon.svg"
+import type { HeaderCategory } from "@/types/product";
+import Logo from "@/assets/logo1.png";
 import Image from "next/image";
 import { HeartIcon, Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 
@@ -34,22 +35,28 @@ const fallbackCategoryItems: NavItem[] = [
 ];
 
 const staticItems: NavItem[] = [
-  { label: "Don't Miss It", href: "#", highlight: "red" },
+  { label: "Don't Miss It", href: "/products", highlight: "red" },
   { label: "New Arrivals", href: "/new-arrivals", highlight: "yellow" },
 ];
 
 
-export default function Header() {
+interface HeaderProps {
+  initialCategories?: HeaderCategory[];
+}
+
+export default function Header({ initialCategories = [] }: HeaderProps) {
   const dispatch = useAppDispatch();
   const wishlistCount = useAppSelector(selectWishlistCount);
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
   const user = useAppSelector(selectUser);
   const headerCategories = useAppSelector(selectHeaderCategories);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const resolvedCategories =
+    headerCategories.length > 0 ? headerCategories : initialCategories;
 
   const categoryItems: NavItem[] =
-    headerCategories.length > 0
-      ? headerCategories.map((cat) => ({
+    resolvedCategories.length > 0
+      ? resolvedCategories.map((cat) => ({
           label: cat.name,
           href: `/categories/${cat.slug}`,
         }))
@@ -59,7 +66,7 @@ export default function Header() {
 
   return (
     <header className="bg-white shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 py-3 flex items-center gap-4">
+      <div className="max-w-7xl mx-auto px-4 pt-3 pb-1 flex items-center gap-4">
         <button
           className="lg:hidden flex-shrink-0 w-10 h-10 flex items-center justify-center"
           onClick={() => setMobileMenuOpen(true)}
@@ -68,17 +75,21 @@ export default function Header() {
           <Bars3Icon className="w-6 h-6 text-gray-700" />
         </button>
 
-        {/* Logo */}
-        <div className="flex items-center gap-4">
-          <Link href="/" className="flex-shrink-0 w-10 h-10 bg-[#E8B800] flex items-center justify-center rounded text-white font-bold text-xs">
-            <Image src={Logo} alt="Logo" width={30} height={30} unoptimized />
-          </Link>
+        <Link href="/" className="flex-shrink-0">
+          <Image
+            src={Logo}
+            alt="Royal Touch Interior"
+            className="h-20 w-auto max-w-[280px] object-contain"
+            priority
+          />
+        </Link>
 
-          <SearchBar className="hidden sm:block" />
+        <div className="hidden sm:flex flex-1 justify-center px-2">
+          <SearchBar className="w-full max-w-2xl" />
         </div>
 
         {/* Cart + Auth */}
-        <div className="flex items-center gap-4 text-sm text-gray-600 flex-shrink-0 ml-auto">
+        <div className="ml-auto flex items-center gap-4 text-sm text-gray-600 flex-shrink-0">
           <Link href="/profile/wishlist/" className="relative hover:text-[#E8B800]" aria-label="Wishlist">
             <HeartIcon className="w-5 h-5" />
             {wishlistCount > 0 && (
@@ -89,15 +100,18 @@ export default function Header() {
           </Link>
           <span className="text-gray-300 hidden sm:inline">|</span>
           {isAuthenticated && user ? (
-            <Link href="/profile/wishlist/" className="hidden sm:flex items-center gap-2">
+            <div className="hidden sm:flex items-center gap-2">
+              <Link href="/profile/wishlist/" className="flex items-center gap-2">
               <span className="text-gray-700 font-medium">{user.name.split(" ")[0]}</span>
+              </Link>
               <button
+                type="button"
                 onClick={() => dispatch(logoutThunk())}
                 className="hover:text-[#E8B800]"
               >
                 Sign Out
               </button>
-            </Link>
+            </div>
           ) : (
             <div className="hidden sm:flex items-center gap-2">
               <Link href="/signin" className="hover:text-[#E8B800]">Sign In</Link>
@@ -118,7 +132,7 @@ export default function Header() {
             <Link
               key={item.label}
               href={item.href}
-              className={`px-4 py-3 text-sm whitespace-nowrap transition-colors ${item.highlight === "yellow"
+              className={`px-4 py-2 text-sm whitespace-nowrap transition-colors ${item.highlight === "yellow"
                 ? "text-[#E8B800] font-semibold hover:text-[#d4a700]"
                 : item.highlight === "red"
                   ? "text-red-400 font-semibold hover:text-red-300"
@@ -145,9 +159,13 @@ export default function Header() {
           }`}
       >
         <div className="flex items-center justify-between p-4 border-b">
-          <div className="flex-shrink-0 w-10 h-10 bg-[#E8B800] flex items-center justify-center rounded text-white font-bold text-xs">
-            <Image src={Logo} alt="Logo" width={30} height={30} unoptimized />
-          </div>
+          <Link href="/" className="flex-shrink-0">
+            <Image
+              src={Logo}
+              alt="Royal Touch Interior"
+              className="h-16 w-auto max-w-[220px] object-contain"
+            />
+          </Link>
           <button
             className="w-10 h-10 flex items-center justify-center"
             onClick={() => setMobileMenuOpen(false)}

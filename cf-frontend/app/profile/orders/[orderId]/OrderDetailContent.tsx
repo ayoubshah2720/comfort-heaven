@@ -158,7 +158,7 @@ export default function OrderDetailContent({ orderId }: OrderDetailContentProps)
                         </div>
                       )}
                       <Link
-                        href={`/products/${item.product.slug}`}
+                        href={`/products/${item.product.id}`}
                         className="font-medium text-gray-800 hover:text-[#E8B800] transition-colors"
                       >
                         {item.productName}

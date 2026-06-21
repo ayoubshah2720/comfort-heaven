@@ -9,8 +9,8 @@ import type { BackendProduct, PaginationMeta, PaginatedProducts } from "@/types/
 
 interface UseCategoryProductsOptions {
   categorySlug: string;
-  initialProducts: BackendProduct[];
-  initialPagination: PaginationMeta;
+  initialProducts?: BackendProduct[];
+  initialPagination?: PaginationMeta;
 }
 
 interface UseCategoryProductsReturn {
@@ -23,8 +23,8 @@ interface UseCategoryProductsReturn {
 
 export function useCategoryProducts({
   categorySlug,
-  initialProducts,
-  initialPagination,
+  initialProducts = [],
+  initialPagination = { page: 1, pageSize: 12, total: 0, totalPages: 0 },
 }: UseCategoryProductsOptions): UseCategoryProductsReturn {
   const [products, setProducts] = useState<BackendProduct[]>(initialProducts);
   const [pagination, setPagination] = useState<PaginationMeta>(initialPagination);

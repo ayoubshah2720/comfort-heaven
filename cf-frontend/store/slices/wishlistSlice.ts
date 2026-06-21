@@ -37,7 +37,7 @@ function backendItemsToWishlistItems(
     name: item.product.name,
     price: item.product.priceCents / 100,
     originalPrice: item.product.priceCents / 100,
-    imageSrc: item.product.imageUrl || "/placeholder.png",
+    imageSrc: item.product.imageUrl || "/sofa.png",
     addedAt: item.createdAt,
     backendItemId: item.id,
   }));
