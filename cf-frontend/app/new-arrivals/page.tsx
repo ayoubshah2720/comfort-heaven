@@ -1,21 +1,11 @@
 import { AnnouncementBar, Header, Footer } from "@/components/layout";
 import { FloatingChatButton } from "@/components/ui";
 import { NewArrivalHero, NewArrivalsGrid } from "@/components/sections";
-import { serverFetch } from "@/lib/api-server";
-import { PRODUCT_ENDPOINTS } from "@/constants/api";
-import type { BackendProduct } from "@/types/product";
+import { getNewArrivals } from "@/lib/storefront-api";
 import type { NewArrivalProduct } from "@/components/sections/NewArrivalsGrid";
 
 export default async function NewArrivalsPage() {
-  let backendProducts: BackendProduct[] = [];
-  try {
-    backendProducts = await serverFetch<BackendProduct[]>(
-      PRODUCT_ENDPOINTS.NEW_ARRIVALS,
-      { revalidate: 60 }
-    );
-  } catch {
-    backendProducts = [];
-  }
+  const backendProducts = await getNewArrivals();
 
   const gridProducts: NewArrivalProduct[] = backendProducts.map((p) => ({
     id: p.id,

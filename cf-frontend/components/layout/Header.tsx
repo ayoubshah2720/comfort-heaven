@@ -11,7 +11,8 @@ import {
   logoutThunk,
 } from "@/store/slices/authSlice";
 import { selectHeaderCategories } from "@/store/slices/headerCategoriesSlice";
-import Logo from "@/assets/icon.svg"
+import type { HeaderCategory } from "@/types/product";
+import Logo from "@/assets/icon.svg";
 import Image from "next/image";
 import { HeartIcon, Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 
@@ -34,22 +35,28 @@ const fallbackCategoryItems: NavItem[] = [
 ];
 
 const staticItems: NavItem[] = [
-  { label: "Don't Miss It", href: "#", highlight: "red" },
+  { label: "Don't Miss It", href: "/products", highlight: "red" },
   { label: "New Arrivals", href: "/new-arrivals", highlight: "yellow" },
 ];
 
 
-export default function Header() {
+interface HeaderProps {
+  initialCategories?: HeaderCategory[];
+}
+
+export default function Header({ initialCategories = [] }: HeaderProps) {
   const dispatch = useAppDispatch();
   const wishlistCount = useAppSelector(selectWishlistCount);
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
   const user = useAppSelector(selectUser);
   const headerCategories = useAppSelector(selectHeaderCategories);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const resolvedCategories =
+    headerCategories.length > 0 ? headerCategories : initialCategories;
 
   const categoryItems: NavItem[] =
-    headerCategories.length > 0
-      ? headerCategories.map((cat) => ({
+    resolvedCategories.length > 0
+      ? resolvedCategories.map((cat) => ({
           label: cat.name,
           href: `/categories/${cat.slug}`,
         }))
@@ -89,15 +96,18 @@ export default function Header() {
           </Link>
           <span className="text-gray-300 hidden sm:inline">|</span>
           {isAuthenticated && user ? (
-            <Link href="/profile/wishlist/" className="hidden sm:flex items-center gap-2">
+            <div className="hidden sm:flex items-center gap-2">
+              <Link href="/profile/wishlist/" className="flex items-center gap-2">
               <span className="text-gray-700 font-medium">{user.name.split(" ")[0]}</span>
+              </Link>
               <button
+                type="button"
                 onClick={() => dispatch(logoutThunk())}
                 className="hover:text-[#E8B800]"
               >
                 Sign Out
               </button>
-            </Link>
+            </div>
           ) : (
             <div className="hidden sm:flex items-center gap-2">
               <Link href="/signin" className="hover:text-[#E8B800]">Sign In</Link>

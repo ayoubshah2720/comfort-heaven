@@ -8,6 +8,7 @@ import {
 } from "@/components/sections";
 import { serverFetch } from "@/lib/api-server";
 import { PRODUCT_ENDPOINTS } from "@/constants/api";
+import { getProductById } from "@/lib/storefront-api";
 import type {
   BackendProductDetail,
   PaginatedProducts,
@@ -22,10 +23,7 @@ export async function generateMetadata({
 }: ProductPageProps): Promise<Metadata> {
   const { id } = await params;
   try {
-    const product = await serverFetch<BackendProductDetail>(
-      PRODUCT_ENDPOINTS.DETAIL(id),
-      { revalidate: 30 }
-    );
+    const product = await getProductById(id);
     return {
       title: `${product.name} — Rs ${(product.priceCents / 100).toLocaleString()}.00`,
       description: product.description || product.name,
@@ -40,10 +38,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
   let product: BackendProductDetail;
   try {
-    product = await serverFetch<BackendProductDetail>(
-      PRODUCT_ENDPOINTS.DETAIL(id),
-      { revalidate: 30 }
-    );
+    product = await getProductById(id);
   } catch {
     notFound();
   }

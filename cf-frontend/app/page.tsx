@@ -9,24 +9,17 @@ import {
   Newsletter,
 } from "@/components/sections";
 import { FloatingChatButton } from "@/components/ui";
-import { serverFetch } from "@/lib/api-server";
-import { CATEGORY_ENDPOINTS } from "@/constants/api";
-import type { BackendCategory } from "@/types/product";
+import { getCategories } from "@/lib/storefront-api";
 
 export default async function Home() {
-  let categories: { id: string; name: string; slug: string; imageUrl: string | null; productCount: number }[] = [];
-
-  try {
-    const data = await serverFetch<BackendCategory[]>(CATEGORY_ENDPOINTS.LIST);
-    categories = data.map((c) => ({
-      id: c.id,
-      name: c.name,
-      slug: c.slug,
-      imageUrl: c.imageUrl,
-      productCount: c._count?.products ?? 0,
-    }));
-  } catch {
-  }
+  const data = await getCategories();
+  const categories = data.map((c) => ({
+    id: c.id,
+    name: c.name,
+    slug: c.slug,
+    imageUrl: c.imageUrl,
+    productCount: c._count?.products ?? 0,
+  }));
 
   return (
     <main className="min-h-screen overflow-x-hidden">
