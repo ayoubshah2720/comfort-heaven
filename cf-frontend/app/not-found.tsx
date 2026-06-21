@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { AnnouncementBar, Header, Footer } from "@/components/layout";
 import { CategoryHero } from "@/components/sections";
+import { SITE_NAME } from "@/constants";
 
 export const metadata: Metadata = {
-  title: "Page Not Found — Furniture Shop",
+  title: `Page Not Found - ${SITE_NAME}`,
 };
 
 export default function NotFound() {
@@ -37,7 +38,7 @@ export default function NotFound() {
             Go to Homepage
           </Link>
           <Link
-            href="/categories/office-chairs"
+            href="/products"
             className="inline-flex items-center justify-center rounded transition-colors duration-200 border border-[#E8B800] text-[#E8B800] hover:bg-[#E8B800] hover:text-white font-semibold px-8 py-3 text-base"
           >
             Browse Products

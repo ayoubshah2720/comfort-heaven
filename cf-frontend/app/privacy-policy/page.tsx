@@ -1,11 +1,11 @@
 import { AnnouncementBar, Header, Footer } from "@/components/layout";
 import { CategoryHero } from "@/components/sections";
 import type { Metadata } from "next";
+import { SITE_NAME, STORE_FULL_ADDRESS, STORE_PHONE_DISPLAY } from "@/constants";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | Comfort Heaven",
-  description:
-    "Learn how Comfort Heaven collects, uses, and protects your personal information when you shop for furniture online in Pakistan.",
+  title: `Privacy Policy | ${SITE_NAME}`,
+  description: `Learn how ${SITE_NAME} collects, uses, and protects your personal information when you shop for furniture online in Pakistan.`,
 };
 
 export default function PrivacyPolicyPage() {
@@ -26,7 +26,7 @@ export default function PrivacyPolicyPage() {
         <div className="space-y-4">
           <h2 className="text-2xl font-bold text-gray-900">1. Information We Collect</h2>
           <p className="text-gray-700 leading-relaxed">
-            When you use Comfort Heaven, we may collect the following types of personal information:
+            When you use {SITE_NAME}, we may collect the following types of personal information:
           </p>
           <ul className="list-disc pl-6 text-gray-700 leading-relaxed space-y-2">
             <li>Name, email address, phone number, and shipping address when you create an account or place an order.</li>
@@ -90,8 +90,8 @@ export default function PrivacyPolicyPage() {
             <li>Withdraw consent for marketing communications at any time.</li>
           </ul>
           <p className="text-gray-700 leading-relaxed">
-            To exercise any of these rights, please contact us at <strong>062-2502660</strong> or visit our store at
-            Innovation Heights Complex, Bahawalpur.
+            To exercise any of these rights, please contact us at <strong>{STORE_PHONE_DISPLAY}</strong> or visit our store at{" "}
+            {STORE_FULL_ADDRESS}.
           </p>
         </div>
 

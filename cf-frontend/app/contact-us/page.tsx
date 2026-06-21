@@ -1,11 +1,17 @@
 import { AnnouncementBar, Header, Footer } from "@/components/layout";
 import { CategoryHero } from "@/components/sections";
 import type { Metadata } from "next";
+import {
+  SITE_NAME,
+  STORE_BUSINESS_HOURS,
+  STORE_BUSINESS_HOURS_NOTE,
+  STORE_FULL_ADDRESS,
+  STORE_PHONE_DISPLAY,
+} from "@/constants";
 
 export const metadata: Metadata = {
-  title: "Contact Us | Comfort Heaven",
-  description:
-    "Get in touch with Comfort Heaven for furniture inquiries, orders, and support. Located in Bahawalpur, Pakistan.",
+  title: `Contact Us | ${SITE_NAME}`,
+  description: `Get in touch with ${SITE_NAME} for furniture inquiries, orders, and support.`,
 };
 
 export default function ContactUsPage() {
@@ -39,7 +45,7 @@ export default function ContactUsPage() {
               </svg>
             </div>
             <h2 className="text-xl font-bold text-gray-900 mb-1">Phone</h2>
-            <p className="text-gray-700 text-lg">062-2502660</p>
+            <p className="text-gray-700 text-lg">{STORE_PHONE_DISPLAY}</p>
           </div>
 
           {/* Address */}
@@ -60,7 +66,7 @@ export default function ContactUsPage() {
               </svg>
             </div>
             <h2 className="text-xl font-bold text-gray-900 mb-1">Address</h2>
-            <p className="text-gray-700 text-lg">Innovation Heights Complex, Bahawalpur</p>
+            <p className="text-gray-700 text-lg">{STORE_FULL_ADDRESS}</p>
           </div>
 
           {/* Business Hours */}
@@ -81,8 +87,8 @@ export default function ContactUsPage() {
               </svg>
             </div>
             <h2 className="text-xl font-bold text-gray-900 mb-1">Business Hours</h2>
-            <p className="text-gray-700">Monday &ndash; Saturday: 10:00 AM &ndash; 8:00 PM</p>
-            <p className="text-gray-500 text-sm mt-1">Closed on Sundays</p>
+            <p className="text-gray-700">{STORE_BUSINESS_HOURS}</p>
+            <p className="text-gray-500 text-sm mt-1">{STORE_BUSINESS_HOURS_NOTE}</p>
           </div>
         </div>
       </section>

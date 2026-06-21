@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import CategoryPageClient from "./CategoryPageClient";
+import { SITE_NAME } from "@/constants";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -14,7 +15,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(" ");
   return {
-    title: `${title} | Furniture Shop`,
+    title: `${title} | ${SITE_NAME}`,
     description: `Browse ${title} products`,
   };
 }
