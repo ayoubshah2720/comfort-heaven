@@ -22,14 +22,19 @@ function signRefreshToken(user) {
 }
 
 function getCookieOptions() {
-  const isProd = env.nodeEnv === 'production';
-  return {
+  const options = {
     httpOnly: true,
-    secure: isProd,
-    sameSite: isProd ? 'none' : 'lax',
+    secure: env.isProd,
+    sameSite: env.isProd ? 'none' : 'lax',
     path: '/',
     maxAge: env.refreshExpiresInDays * 24 * 60 * 60 * 1000
   };
+
+  if (env.cookieDomain) {
+    options.domain = env.cookieDomain;
+  }
+
+  return options;
 }
 
 module.exports = {

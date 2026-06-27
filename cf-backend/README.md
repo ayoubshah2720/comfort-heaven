@@ -2,7 +2,7 @@
 
 Production-ready Node.js (Express) API using PostgreSQL + Prisma.
 
-## Setup
+## Local setup
 
 1. Install dependencies
 
@@ -18,7 +18,7 @@ npm i
 npm run prisma:generate
 ```
 
-4. Run migrations
+4. Run local migrations
 
 ```bash
 npm run prisma:migrate
@@ -30,7 +30,46 @@ npm run prisma:migrate
 npm run seed
 ```
 
-## PG connection check
+6. Start the API
+
+```bash
+npm run dev
+```
+
+## Render deployment
+
+Use your Neon pooled `DATABASE_URL` in Render as the `DATABASE_URL` environment variable.
+
+Required environment variables:
+
+- `DATABASE_URL`
+- `JWT_ACCESS_SECRET`
+- `JWT_REFRESH_SECRET`
+- `CLIENT_ORIGINS`
+- `CLOUDINARY_CLOUD_NAME`
+- `CLOUDINARY_API_KEY`
+- `CLOUDINARY_API_SECRET`
+- `NODE_ENV=production`
+- `TRUST_PROXY=true`
+
+Optional environment variables:
+
+- `PORT`
+- `COOKIE_DOMAIN`
+- `ACCESS_EXPIRES_IN`
+- `REFRESH_EXPIRES_IN_DAYS`
+- `COOKIE_NAME`
+- `ACCESS_COOKIE_NAME`
+- `APP_BASE_URL`
+
+Recommended Render settings:
+
+- Build Command: `npm install && npm run render-build`
+- Start Command: `npm start`
+
+The build step runs Prisma client generation and `prisma migrate deploy`, which is the correct production migration path for Render + Neon.
+
+## Health checks
 
 ```bash
 curl -i http://localhost:5000/health/db
