@@ -13,6 +13,10 @@ const response = require('./utils/response');
 
 const app = express();
 
+if (env.trustProxy) {
+  app.set('trust proxy', 1);
+}
+
 app.use(helmet());
 app.use(express.json());
 app.use(cookieParser());

@@ -10,7 +10,10 @@ if (isProd && !hasDatabaseUrl) {
 
 const pool = new Pool(
   hasDatabaseUrl
-    ? { connectionString: process.env.DATABASE_URL }
+    ? {
+        connectionString: process.env.DATABASE_URL,
+        ssl: isProd ? { rejectUnauthorized: false } : undefined
+      }
     : {
         host: process.env.PG_HOST || '127.0.0.1',
         port: Number(process.env.PG_PORT || 5433),
