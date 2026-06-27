@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { AnnouncementBar, Header, Footer } from "@/components/layout";
 import { CategoryHero } from "@/components/sections";
+import { SITE_NAME } from "@/constants";
 
 export const metadata: Metadata = {
-  title: "Product Not Found — Furniture Shop",
+  title: `Product Not Found - ${SITE_NAME}`,
 };
 
 export default function ProductNotFound() {
@@ -16,13 +17,12 @@ export default function ProductNotFound() {
         title="Product Not Found"
         breadcrumbs={[
           { label: "Home", href: "/" },
-          { label: "Products", href: "/categories/office-chairs" },
+          { label: "Products", href: "/products" },
           { label: "Not Found" },
         ]}
         backgroundImage="https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=1400&q=80"
       />
       <section className="max-w-2xl mx-auto px-4 py-16 text-center">
-        {/* Magnifying glass icon */}
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="80"
@@ -53,7 +53,7 @@ export default function ProductNotFound() {
             Go to Homepage
           </Link>
           <Link
-            href="/categories/office-chairs"
+            href="/products"
             className="inline-flex items-center justify-center rounded transition-colors duration-200 border border-[#E8B800] text-[#E8B800] hover:bg-[#E8B800] hover:text-white font-semibold px-8 py-3 text-base"
           >
             Browse Products

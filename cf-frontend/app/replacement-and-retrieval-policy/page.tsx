@@ -1,11 +1,11 @@
 import { AnnouncementBar, Header, Footer } from "@/components/layout";
 import { CategoryHero } from "@/components/sections";
 import type { Metadata } from "next";
+import { SITE_NAME, STORE_FULL_ADDRESS, STORE_PHONE_DISPLAY } from "@/constants";
 
 export const metadata: Metadata = {
-  title: "Replacement & Retrieval Policy | Comfort Heaven",
-  description:
-    "Understand our replacement, return, and retrieval policy for furniture purchased from Comfort Heaven in Pakistan.",
+  title: `Replacement & Retrieval Policy | ${SITE_NAME}`,
+  description: `Understand our replacement, return, and retrieval policy for furniture purchased from ${SITE_NAME} in Pakistan.`,
 };
 
 export default function ReplacementAndRetrievalPolicyPage() {
@@ -46,7 +46,7 @@ export default function ReplacementAndRetrievalPolicyPage() {
         <div className="space-y-4">
           <h2 className="text-2xl font-bold text-gray-900">3. How to File a Claim</h2>
           <ol className="list-decimal pl-6 text-gray-700 leading-relaxed space-y-2">
-            <li>Contact our support team at <strong>062-2502660</strong> within 7 days of receiving your order.</li>
+            <li>Contact our support team at <strong>{STORE_PHONE_DISPLAY}</strong> within 7 days of receiving your order.</li>
             <li>Provide your order number and a clear description of the issue.</li>
             <li>Share photographs of the damage or defect for our team to assess.</li>
             <li>Our team will review your claim within 2-3 business days and inform you of the outcome.</li>
@@ -89,8 +89,8 @@ export default function ReplacementAndRetrievalPolicyPage() {
             For any questions regarding replacements or retrievals, please reach out to us:
           </p>
           <ul className="list-disc pl-6 text-gray-700 leading-relaxed space-y-2">
-            <li><strong>Phone:</strong> 062-2502660</li>
-            <li><strong>Address:</strong> Innovation Heights Complex, Bahawalpur</li>
+            <li><strong>Phone:</strong> {STORE_PHONE_DISPLAY}</li>
+            <li><strong>Address:</strong> {STORE_FULL_ADDRESS}</li>
           </ul>
         </div>
       </section>

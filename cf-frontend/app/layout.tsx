@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { SITE_DESCRIPTION, SITE_NAME } from "@/constants";
 import StoreProvider from "@/store/StoreProvider";
 import "./globals.css";
 
@@ -14,9 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Royal Touch Interior",
-  description:
-    "Royal Touch Interior is a premium furniture and home decor storefront with category browsing, search, and modern interior collections.",
+  title: SITE_NAME,
+  description: SITE_DESCRIPTION,
 };
 
 export default function RootLayout({

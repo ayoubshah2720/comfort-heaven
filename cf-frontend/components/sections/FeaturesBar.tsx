@@ -1,5 +1,6 @@
 import { TruckIcon, StarIcon, PhoneIcon, DollarIcon } from "@/components/icons";
 import { ClockIcon } from "@heroicons/react/24/outline";
+import { STORE_PHONE_DISPLAY } from "@/constants";
 
 interface Feature {
   icon: React.ReactNode;
@@ -25,7 +26,7 @@ const defaultFeatures: Feature[] = [
   {
     icon: <PhoneIcon width={26} height={26} />,
     title: "CUSTOMER SUPPORT",
-    description: "Call us anytime 0331-5994525",
+    description: `Call us anytime ${STORE_PHONE_DISPLAY}`,
   },
   {
     icon: <DollarIcon width={26} height={26} />,

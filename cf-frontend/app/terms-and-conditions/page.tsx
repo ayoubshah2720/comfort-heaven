@@ -1,11 +1,11 @@
 import { AnnouncementBar, Header, Footer } from "@/components/layout";
 import { CategoryHero } from "@/components/sections";
 import type { Metadata } from "next";
+import { SITE_NAME } from "@/constants";
 
 export const metadata: Metadata = {
-  title: "Terms & Conditions | Comfort Heaven",
-  description:
-    "Read the terms and conditions governing the use of Comfort Heaven, your trusted online furniture store in Pakistan.",
+  title: `Terms & Conditions | ${SITE_NAME}`,
+  description: `Read the terms and conditions governing the use of ${SITE_NAME}, your trusted online furniture store in Pakistan.`,
 };
 
 export default function TermsAndConditionsPage() {
@@ -26,7 +26,7 @@ export default function TermsAndConditionsPage() {
         <div className="space-y-4">
           <h2 className="text-2xl font-bold text-gray-900">1. Account Terms</h2>
           <p className="text-gray-700 leading-relaxed">
-            By creating an account on Comfort Heaven, you agree to provide accurate, current, and complete information.
+            By creating an account on {SITE_NAME}, you agree to provide accurate, current, and complete information.
             You are responsible for maintaining the confidentiality of your account credentials and for all activities that
             occur under your account.
           </p>
@@ -46,7 +46,7 @@ export default function TermsAndConditionsPage() {
           <h2 className="text-2xl font-bold text-gray-900">3. Payment</h2>
           <p className="text-gray-700 leading-relaxed">
             We accept payments via bank transfer, cash on delivery (COD), and supported online payment methods.
-            All online payments are processed through secure, PCI-compliant third-party payment gateways. Comfort Heaven
+            All online payments are processed through secure, PCI-compliant third-party payment gateways. {SITE_NAME}
             does not store your credit or debit card information.
           </p>
         </div>
@@ -65,7 +65,7 @@ export default function TermsAndConditionsPage() {
           <h2 className="text-2xl font-bold text-gray-900">5. Intellectual Property</h2>
           <p className="text-gray-700 leading-relaxed">
             All content on this website &mdash; including text, images, logos, product designs, and graphics &mdash; is the
-            property of Comfort Heaven and is protected under Pakistani intellectual property laws. You may not reproduce,
+            property of {SITE_NAME} and is protected under Pakistani intellectual property laws. You may not reproduce,
             distribute, or use any content from this site without our prior written consent.
           </p>
         </div>
@@ -73,7 +73,7 @@ export default function TermsAndConditionsPage() {
         <div className="space-y-4">
           <h2 className="text-2xl font-bold text-gray-900">6. Limitation of Liability</h2>
           <p className="text-gray-700 leading-relaxed">
-            To the fullest extent permitted by Pakistani law, Comfort Heaven shall not be liable for any indirect,
+            To the fullest extent permitted by Pakistani law, {SITE_NAME} shall not be liable for any indirect,
             incidental, special, or consequential damages arising from your use of our website or products. Our total
             liability for any claim shall not exceed the amount you paid for the product in question.
           </p>
